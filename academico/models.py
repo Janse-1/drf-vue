@@ -118,10 +118,13 @@ class PadreEstudiante(models.Model):
 
 class Asignatura(models.Model):
     TIPO_ASIG = [('area', 'Área'), ('subarea', 'Subárea')]
-    id_asig = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nombre_asig = models.CharField(max_length=100)
     tipo_asig = models.CharField(max_length=10, choices=TIPO_ASIG)
-    id_area = models.UUIDField(null=True, blank=True)  # Puede ser clave foránea si referencian áreas
+
+    def __str__(self):
+        return self.nombre_asig
 
 class AsignaturaDocenteGrupo(models.Model):
     id_adg = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
