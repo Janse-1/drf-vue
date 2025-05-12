@@ -131,6 +131,9 @@ class AsignaturaDocenteGrupo(models.Model):
     id_asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
     id_docente = models.ForeignKey(Docente, on_delete=models.CASCADE)
     id_grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
+    
+    class Meta:
+     unique_together = ('id_grupo', 'id_asignatura')
 
 class EstudianteAsignaturaCursoGrado(models.Model):
     id_est_asig = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -138,6 +141,10 @@ class EstudianteAsignaturaCursoGrado(models.Model):
     asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
+    
+    class Meta:
+     unique_together = ('estudiante', 'asignatura', 'grupo', 'grado')
+
 
 class Evaluacion(models.Model):
     TIPO_EVAL = [('actividad', 'Actividad'), ('disciplina', 'Disciplina'), ('examen_final', 'Examen Final')]

@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Docente, Estudiante, Grado, Grupo, Asignatura
-from .serializers import DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer, AsignaturaSerializer
+from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
+from .serializers import DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer, AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer
 
 class DocenteViewSet(viewsets.ModelViewSet):
     queryset = Docente.objects.all()
@@ -21,3 +21,11 @@ class GrupoViewSet(viewsets.ModelViewSet):
 class AsignaturaViewSet(viewsets.ModelViewSet):
     queryset = Asignatura.objects.all()
     serializer_class = AsignaturaSerializer
+
+class AsignaturaDocenteGrupoViewSet(viewsets.ModelViewSet):
+    queryset = AsignaturaDocenteGrupo.objects.all()
+    serializer_class = AsignaturaDocenteGrupoSerializer
+    
+class EstudianteAsignaturaCursoGradoViewSet(viewsets.ModelViewSet):
+    queryset = EstudianteAsignaturaCursoGrado.objects.all()
+    serializer_class = EstudianteAsignaturaCursoGradoSerializer
