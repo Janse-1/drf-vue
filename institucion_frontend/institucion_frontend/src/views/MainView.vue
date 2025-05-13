@@ -22,12 +22,14 @@
     </ul>
   </div>
 
-  
+  <FooterComponent></FooterComponent>
+
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import FooterComponent from '@/components/FooterComponent.vue'
 
 const user = ref(null)
 const router = useRouter()
