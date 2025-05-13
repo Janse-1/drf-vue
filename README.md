@@ -47,7 +47,10 @@ Edita el archivo `settings.py` con tus credenciales de base de datos:
 #### 5. Ejecuta las migraciones
 `python manage.py migrate`
 
-#### 6. Levantar el servidor
+#### 6. Levantar los servidores 
+##### Vue.js : localhost:5173/
+`npm run dev`
+##### Django : localhost:8000/
 `python manage.py runserver`
 
 
