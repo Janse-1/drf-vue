@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+*.pot
+*.mo
+*.pyc
+*.pyo
+*.pyd
+
+# Entorno virtual
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Archivos de configuración
+*.env
+.env.*
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# VSCode
+.vscode/
+
+# Node/Vue
+node_modules/
+dist/
+*.local
+
+# General
+.DS_Store
+Thumbs.db
+
+# Tests y coverage
+.coverage
+htmlcov/
+coverage.xml
+nosetests.xml
+test-results/
+.pytest_cache/

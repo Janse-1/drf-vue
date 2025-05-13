@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'corsheaders',
     'academico',
 ]
@@ -51,6 +53,25 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+DJOSER = {
+    'USER_ID_FIELD': 'id',
+    'LOGIN_FIELD': 'username',
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  
 ]
 
 ROOT_URLCONF = 'institucion_backend.urls'
