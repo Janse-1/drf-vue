@@ -51,7 +51,7 @@ const login = async () => {
     localStorage.setItem('refresh_token', data.refresh)
 
     // Redirigir a la vista principal
-    router.push('/dashboard')
+    router.push('/MainView')
   } catch (err) {
     error.value = 'Error de red o del servidor'
   }
