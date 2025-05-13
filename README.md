@@ -3,15 +3,11 @@
 Este es un sistema web para la gestión académica de la **Institución Educativa Indígena N1**, que permite la administración de sedes, estudiantes, profesores y notas. Incluye generación de boletines en PDF y carga de calificaciones por parte del docente.
 
 #### Actualmente está en fase inicial
-<p>
-Solo con django y se irán agregando más cosas conforme el tiempo.
-</p>
 
-
-## 🚀 Tecnologías que se usarán
+## 🚀 Tecnologías
 
 - **Backend**: Python + Django + Django REST Framework
-- **Frontend**: Vue.js + Axios (proximamente)
+- **Frontend**: Vue.js + Axios 
 - **Base de datos**: MySQL 
 
 > Nota: las ultimas versiones de cada una de estas.
@@ -56,7 +52,7 @@ Edita el archivo `settings.py` con tus credenciales de base de datos:
 
 
 ### 🛠 Estado del proyecto
->Proyecto en fase inicial de desarrollo (solo backend).
+>Proyecto en fase inicial, se está integrando la lógica del backend con el frontend.
 
 ### ✅ Buenas prácticas
 
