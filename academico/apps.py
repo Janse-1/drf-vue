@@ -6,7 +6,4 @@ class AcademicoConfig(AppConfig):
     name = 'academico'
     
     
-    def ready(self):
-     import academico.signals
-    
-
+     

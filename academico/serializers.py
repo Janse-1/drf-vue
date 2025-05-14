@@ -18,57 +18,114 @@ class UsuarioConTipoSerializer(serializers.ModelSerializer):
 
 #Aquí para registrar usuarios POST
 class UsuarioRegistroSerializer(serializers.ModelSerializer):
-    # Campos del modelo User
+# Campos del modelo User
     username = serializers.CharField()
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
 
     # Campos personalizados de Usuario
     tipo_usr = serializers.ChoiceField(choices=Usuario.TIPO_USUARIO)
 
-    # Datos específicos por tipo
+    # Comunes
     documento = serializers.CharField(required=False)
+    tipo_documento = serializers.CharField(required=False)
+    fecha_nacimiento = serializers.DateField(required=False)
     telefono = serializers.CharField(required=False)
     direccion = serializers.CharField(required=False)
 
+    # Específicos por tipo
+    sexo = serializers.CharField(required=False)  # Solo para coordinador
+    estado = serializers.CharField(required=False)  # Para estudiante y docente
+
     class Meta:
         model = Usuario
-        fields = ['username', 'email', 'password', 'tipo_usr', 'documento', 'telefono', 'direccion']
+        fields = [
+            'username', 'email', 'password', 'first_name', 'last_name',
+            'tipo_usr', 'documento', 'tipo_documento', 'fecha_nacimiento',
+            'telefono', 'direccion', 'sexo', 'estado'
+        ]
+
+    def validate(self, attrs):
+        tipo = attrs.get('tipo_usr')
+        requeridos = ['documento', 'tipo_documento', 'fecha_nacimiento', 'telefono', 'direccion']
+
+        missing = [field for field in requeridos if not attrs.get(field)]
+        if tipo == 'COORDINADOR' and not attrs.get('sexo'):
+            missing.append('sexo')
+        if tipo in ['ESTUDIANTE', 'DOCENTE'] and not attrs.get('estado'):
+            missing.append('estado')
+
+        if missing:
+            raise ValidationError({field: 'Este campo es obligatorio para el tipo seleccionado.' for field in missing})
+
+        # Validación del campo estado
+        estado = attrs.get('estado')
+        if tipo == 'DOCENTE' and estado and estado not in ['ACTIVO', 'INACTIVO']:
+            raise ValidationError({'estado': 'Estado inválido para docente.'})
+        if tipo == 'ESTUDIANTE' and estado and estado not in ['ACTIVO', 'GRADUADO', 'INACTIVO']:
+            raise ValidationError({'estado': 'Estado inválido para estudiante.'})
+
+        return attrs
 
     def create(self, validated_data):
         tipo = validated_data.pop('tipo_usr')
-        documento = validated_data.pop('documento', '')
-        telefono = validated_data.pop('telefono', '')
-        direccion = validated_data.pop('direccion', '')
-        
+
+        # Datos comunes
+        documento = validated_data.pop('documento')
+        tipo_documento = validated_data.pop('tipo_documento')
+        fecha_nacimiento = validated_data.pop('fecha_nacimiento')
+        telefono = validated_data.pop('telefono')
+        direccion = validated_data.pop('direccion')
+
+        # Datos User
         username = validated_data.pop('username')
         email = validated_data.pop('email')
         password = validated_data.pop('password')
+        first_name = validated_data.pop('first_name')
+        last_name = validated_data.pop('last_name')
+
+        # Datos específicos
+        sexo = validated_data.pop('sexo', '')
+        estado = validated_data.pop('estado', '')
 
         try:
-        # Crear User
             user = User.objects.create_user(
                 username=username,
                 email=email,
-                password=password
+                password=password,
+                first_name=first_name,
+                last_name=last_name
             )
         except IntegrityError:
-         raise ValidationError({'username': 'Este nombre de usuario ya está en uso.'})
+            raise ValidationError({'username': 'Este nombre de usuario ya está en uso.'})
 
-        # Crear Usuario vinculado
         usuario = Usuario.objects.create(user=user, tipo_usr=tipo)
 
-        # Crear el tipo específico
+        perfil_args = {
+            'usuario': usuario,
+            'documento': documento,
+            'tipo_documento': tipo_documento,
+            'fecha_nacimiento': fecha_nacimiento,
+            'telefono': telefono,
+            'direccion': direccion,
+        }
+
         if tipo == 'ESTUDIANTE':
-            Estudiante.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
+            perfil_args['estado'] = estado
+            Estudiante.objects.create(**perfil_args)
         elif tipo == 'DOCENTE':
-            Docente.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
-        elif tipo == 'PADRE':
-            Padre.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
+            perfil_args['estado'] = estado
+            Docente.objects.create(**perfil_args)
         elif tipo == 'COORDINADOR':
-            Coordinador.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
+            perfil_args['sexo'] = sexo
+            Coordinador.objects.create(**perfil_args)
+        elif tipo == 'PADRE':
+            Padre.objects.create(**perfil_args)
 
         return usuario
+
 
 
 class DocenteSerializer(serializers.ModelSerializer):
