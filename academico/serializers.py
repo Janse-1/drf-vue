@@ -1,5 +1,75 @@
 from rest_framework import serializers
+from djoser.serializers import UserSerializer as BaseUserSerializer, ValidationError, IntegrityError
+from .models import Usuario, Padre, Coordinador, User
 from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
+
+#Aqui retorna datos GET
+class UsuarioConTipoSerializer(serializers.ModelSerializer):
+    tipo_usr = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'tipo_usr')
+
+    def get_tipo_usr(self, obj):
+        return obj.usuario.tipo_usr if hasattr(obj, 'usuario') else None
+
+
+
+#Aquí para registrar usuarios POST
+class UsuarioRegistroSerializer(serializers.ModelSerializer):
+    # Campos del modelo User
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    # Campos personalizados de Usuario
+    tipo_usr = serializers.ChoiceField(choices=Usuario.TIPO_USUARIO)
+
+    # Datos específicos por tipo
+    documento = serializers.CharField(required=False)
+    telefono = serializers.CharField(required=False)
+    direccion = serializers.CharField(required=False)
+
+    class Meta:
+        model = Usuario
+        fields = ['username', 'email', 'password', 'tipo_usr', 'documento', 'telefono', 'direccion']
+
+    def create(self, validated_data):
+        tipo = validated_data.pop('tipo_usr')
+        documento = validated_data.pop('documento', '')
+        telefono = validated_data.pop('telefono', '')
+        direccion = validated_data.pop('direccion', '')
+        
+        username = validated_data.pop('username')
+        email = validated_data.pop('email')
+        password = validated_data.pop('password')
+
+        try:
+        # Crear User
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password
+            )
+        except IntegrityError:
+         raise ValidationError({'username': 'Este nombre de usuario ya está en uso.'})
+
+        # Crear Usuario vinculado
+        usuario = Usuario.objects.create(user=user, tipo_usr=tipo)
+
+        # Crear el tipo específico
+        if tipo == 'ESTUDIANTE':
+            Estudiante.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
+        elif tipo == 'DOCENTE':
+            Docente.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
+        elif tipo == 'PADRE':
+            Padre.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
+        elif tipo == 'COORDINADOR':
+            Coordinador.objects.create(usuario=usuario, documento=documento, telefono=telefono, direccion=direccion)
+
+        return usuario
+
 
 class DocenteSerializer(serializers.ModelSerializer):
     class Meta:

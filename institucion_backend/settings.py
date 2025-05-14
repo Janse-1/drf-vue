@@ -61,10 +61,18 @@ REST_FRAMEWORK = {
     ),
 }
 
+
+
 DJOSER = {
     'USER_ID_FIELD': 'id',
     'LOGIN_FIELD': 'username',
+    'SERIALIZERS': {
+        'user': 'academico.serializers.UsuarioConTipoSerializer',
+        'current_user': 'academico.serializers.UsuarioConTipoSerializer',
+        'user_create': 'academico.serializers.UsuarioRegistroSerializer',
+    }
 }
+
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
