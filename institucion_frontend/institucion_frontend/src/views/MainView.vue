@@ -1,6 +1,6 @@
 <template>
   <header>
-    <h2 v-if="user">Bienvenido, {{ user.username }}!</h2>
+    <h2 v-if="user">Bienvenido, {{ user.first_name }} {{ user.last_name }} !</h2>
     <nav v-if="user">
       <!-- Puedes hacer condiciones según el rol si lo agregas -->
       <a href="">Mi perfil</a>
@@ -31,18 +31,29 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FooterComponent from '@/components/FooterComponent.vue'
 
-const user = ref(null)
+const user = ref({
+  username: '',
+  first_name: '',
+  last_name: '',
+  email: '',
+  tipo_usr: '',
+})
 const router = useRouter()
 
 onMounted(async () => {
   const token = localStorage.getItem('access_token')
 
+  if (!token) {
+    router.push('/LoginView')
+    return
+  }
+
   try {
     const response = await fetch('http://localhost:8000/auth/users/me/', {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     })
 
     if (!response.ok) {
@@ -50,14 +61,20 @@ onMounted(async () => {
     }
 
     const data = await response.json()
-    user.value = data
+    user.value = {
+      username: data.username,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      tipo_usr: data.tipo_usr,
+    }
   } catch (error) {
     console.error('Error al obtener datos del usuario:', error)
     router.push('/LoginView')
   }
 })
-
 </script>
+
 
 <style scoped>
 /* Estilos básicos opcionales */

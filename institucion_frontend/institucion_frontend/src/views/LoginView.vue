@@ -28,6 +28,7 @@ const router = useRouter()
 const login = async () => {
   error.value = ''
   try {
+    // 1. Enviar usuario y contraseña al backend
     const response = await fetch('http://localhost:8000/auth/jwt/create/', {
       method: 'POST',
       headers: {
@@ -46,17 +47,39 @@ const login = async () => {
       return
     }
 
-    // Guardar el token en localStorage
-    localStorage.setItem('access_token', data.access)
+    const accessToken = data.access
+    localStorage.setItem('access_token', accessToken)
     localStorage.setItem('refresh_token', data.refresh)
 
-    // Redirigir a la vista principal
+    // 2. Obtener información del usuario usando el token
+    const userResponse = await fetch('http://localhost:8000/auth/users/me/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+
+    const userInfo = await userResponse.json()
+
+    if (!userResponse.ok) {
+      error.value = 'Error al obtener la información del usuario'
+      return
+    }
+
+    // 3. Guardar nombre, apellido y tipo de usuario en localStorage
+    localStorage.setItem('first_name', userInfo.first_name)
+    localStorage.setItem('last_name', userInfo.last_name)
+    localStorage.setItem('tipo_usr', userInfo.tipo_usr)
+
+    // 4. Redirigir a la vista principal
     router.push('/MainView')
   } catch (err) {
     error.value = 'Error de red o del servidor'
   }
 }
 </script>
+
 
 <style scoped>
 .login-container {
