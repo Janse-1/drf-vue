@@ -2,6 +2,7 @@ import uuid
 from django.contrib.auth.models import User
 from django.db import models
 
+
 class Usuario(models.Model):
     TIPO_USUARIO = [
         ('coordinador', 'Coordinador'),
@@ -11,46 +12,50 @@ class Usuario(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='usuario')
     tipo_usr = models.CharField(max_length=20, choices=TIPO_USUARIO)
-    activo_usr = models.BooleanField(default=True)
+    activo = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
 class Sede(models.Model):
-    codigo_dane_sed = models.CharField(max_length=12, primary_key=True)
-    nombre_sed = models.CharField(max_length=100)
-    direccion_sed = models.CharField(max_length=100, blank=True, null=True)
+    codigo_dane = models.CharField(max_length=20, primary_key=True)
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
 class Coordinador(models.Model):
-    id_coo = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tipo_documento_coo = models.CharField(max_length=5)
-    numero_documento_coo = models.CharField(max_length=20)
-    nombres_coo = models.CharField(max_length=50)
-    apellidos_coo = models.CharField(max_length=50)
-    sexo_coo = models.CharField(max_length=1)
-    telefono_coo = models.CharField(max_length=20)
-    correo_coo = models.EmailField()
-    direccion_coo = models.CharField(max_length=100)
-    fecha_nacimiento_coo = models.DateField()
-    sede_codigo_dane = models.ForeignKey(Sede, on_delete=models.SET_NULL, null=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tipo_documento = models.CharField(max_length=5)
+    numero_documento = models.CharField(max_length=20)
+    nombres = models.CharField(max_length=50)
+    apellidos = models.CharField(max_length=50)
+    sexo = models.CharField(max_length=1)
+    telefono = models.CharField(max_length=20)
+    correo = models.EmailField()
+    direccion = models.CharField(max_length=100)
+    fecha_nacimiento = models.DateField()
+    sede = models.ForeignKey(Sede, on_delete=models.SET_NULL, null=True)
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
 class Docente(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    nombres_doc = models.CharField(max_length=100)
-    apellidos_doc = models.CharField(max_length=100)
-    tipo_documento_doc = models.CharField(max_length=5)
-    numero_documento_doc = models.CharField(max_length=20)
-    email_doc = models.EmailField()
-    telefono_doc = models.CharField(max_length=20)
-    direccion_doc = models.CharField(max_length=200)
-    fecha_nacimiento_doc = models.DateField()
-    estado_doc = models.CharField(max_length=10, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')], default='activo')
-    creado = models.DateTimeField(auto_now_add=True)
-    actualizado = models.DateTimeField(auto_now=True)
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    tipo_documento = models.CharField(max_length=5)
+    numero_documento = models.CharField(max_length=20)
+    correo = models.EmailField()
+    telefono = models.CharField(max_length=20)
+    direccion = models.CharField(max_length=200)
+    fecha_nacimiento = models.DateField()
+    estado = models.CharField(max_length=10, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')], default='activo')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
 class DocenteSede(models.Model):
     docente = models.ForeignKey(Docente, on_delete=models.CASCADE)
@@ -59,55 +64,57 @@ class DocenteSede(models.Model):
     class Meta:
         unique_together = ('docente', 'sede')
 
+
 class Grado(models.Model):
-    id_gra = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nombre_gra = models.CharField(max_length=20)
-    representacion_gra = models.CharField(max_length=10)
-    anio_gra = models.IntegerField()
-    cantidad_grupos_gra = models.IntegerField()
-    cantidad_asignaturas_gra = models.IntegerField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nombre = models.CharField(max_length=20)
+    representacion = models.CharField(max_length=10)
+    anio = models.IntegerField()
+    cantidad_grupos = models.IntegerField()
+    cantidad_asignaturas = models.IntegerField()
     sede = models.ForeignKey(Sede, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
 class Grupo(models.Model):
-    id_grp = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nombre_grp = models.CharField(max_length=10)
-    cantidad_estudiantes_grp = models.IntegerField()
-    id_grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
-    director_grupo = models.ForeignKey(Docente, on_delete=models.SET_NULL, null=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nombre = models.CharField(max_length=10)
+    cantidad_estudiantes = models.IntegerField()
+    grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
+    director = models.ForeignKey(Docente, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
 class Estudiante(models.Model):
-    ESTADO_CHOICES = [
-        ('activo', 'Activo'),
-        ('inactivo', 'Inactivo'),
-        ('graduado', 'Graduado')
-    ]
+    ESTADO_CHOICES = [('activo', 'Activo'), ('inactivo', 'Inactivo'), ('graduado', 'Graduado')]
+
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    nombres_est = models.CharField(max_length=100)
-    apellidos_est = models.CharField(max_length=100)
-    email_est = models.EmailField()
-    tipo_documento_est = models.CharField(max_length=5)
-    numero_documento_est = models.CharField(max_length=20)
-    telefono_est = models.CharField(max_length=20)
-    direccion_est = models.CharField(max_length=200)
-    fecha_nacimiento_est = models.DateField()
-    estado_est = models.CharField(max_length=10, choices=ESTADO_CHOICES)
-    grupo = models.ForeignKey('Grupo', on_delete=models.SET_NULL, null=True)
-    creado = models.DateTimeField(auto_now_add=True)
-    actualizado = models.DateTimeField(auto_now=True)
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    correo = models.EmailField()
+    tipo_documento = models.CharField(max_length=5)
+    numero_documento = models.CharField(max_length=20)
+    telefono = models.CharField(max_length=20)
+    direccion = models.CharField(max_length=200)
+    fecha_nacimiento = models.DateField()
+    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES)
+    grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
 class Padre(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    nombres_pad = models.CharField(max_length=100)
-    apellidos_pad = models.CharField(max_length=100)
-    email_pad = models.EmailField()
-    telefono_pad = models.CharField(max_length=20)
-    direccion_pad = models.CharField(max_length=200)
-    creado = models.DateTimeField(auto_now_add=True)
-    actualizado = models.DateTimeField(auto_now=True)
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    correo = models.EmailField()
+    telefono = models.CharField(max_length=20)
+    direccion = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
 class PadreEstudiante(models.Model):
     padre = models.ForeignKey(Padre, on_delete=models.CASCADE)
@@ -116,73 +123,83 @@ class PadreEstudiante(models.Model):
     class Meta:
         unique_together = ('padre', 'estudiante')
 
+
 class Asignatura(models.Model):
-    TIPO_ASIG = [('area', 'Área'), ('subarea', 'Subárea')]
-    
+    TIPO = [('area', 'Área'), ('subarea', 'Subárea')]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nombre_asig = models.CharField(max_length=100)
-    tipo_asig = models.CharField(max_length=10, choices=TIPO_ASIG)
+    nombre = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=10, choices=TIPO)
 
     def __str__(self):
-        return self.nombre_asig
+        return self.nombre
+
 
 class AsignaturaDocenteGrupo(models.Model):
-    id_adg = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    id_asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
-    id_docente = models.ForeignKey(Docente, on_delete=models.CASCADE)
-    id_grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
-    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
+    docente = models.ForeignKey(Docente, on_delete=models.CASCADE)
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
+
     class Meta:
-     unique_together = ('id_grupo', 'id_asignatura')
+        unique_together = ('grupo', 'asignatura')
+
 
 class EstudianteAsignaturaCursoGrado(models.Model):
-    id_est_asig = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
     asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     grado = models.ForeignKey(Grado, on_delete=models.CASCADE)
-    
+
     class Meta:
-     unique_together = ('estudiante', 'asignatura', 'grupo', 'grado')
+        unique_together = ('estudiante', 'asignatura', 'grupo', 'grado')
 
 
 class Evaluacion(models.Model):
-    TIPO_EVAL = [('actividad', 'Actividad'), ('disciplina', 'Disciplina'), ('examen_final', 'Examen Final')]
-    id_eval = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tipo_eval = models.CharField(max_length=20, choices=TIPO_EVAL)
-    nombre_eval = models.CharField(max_length=100)
-    id_asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
-    id_grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
-    fecha_eval = models.DateField()
-    ponderacion_eval = models.DecimalField(max_digits=5, decimal_places=2)
+    TIPO = [('actividad', 'Actividad'), ('disciplina', 'Disciplina'), ('examen_final', 'Examen Final')]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tipo = models.CharField(max_length=20, choices=TIPO)
+    nombre = models.CharField(max_length=100)
+    asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
+    fecha = models.DateField()
+    ponderacion = models.DecimalField(max_digits=5, decimal_places=2)
+
 
 class Calificacion(models.Model):
-    id_cal = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     evaluacion = models.ForeignKey(Evaluacion, on_delete=models.CASCADE)
     estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
-    calificacion_cal = models.DecimalField(max_digits=5, decimal_places=2)
-    observaciones_cal = models.TextField(blank=True, null=True)
+    nota = models.DecimalField(max_digits=5, decimal_places=2)
+    observaciones = models.TextField(blank=True, null=True)
+
 
 class Asistencia(models.Model):
-    id_asi = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    id_asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
-    id_grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
-    fecha_asi = models.DateField()
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
+    grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
+    fecha = models.DateField()
+
 
 class AsistenciaEstudiante(models.Model):
-    ESTADO_AE = [('presente', 'Presente'), ('ausente', 'Ausente'), ('excusado', 'Excusado')]
-    id_ae = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    id_asistencia = models.ForeignKey(Asistencia, on_delete=models.CASCADE)
-    id_estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
-    estado_ae = models.CharField(max_length=10, choices=ESTADO_AE)
-    observaciones_ae = models.TextField(blank=True, null=True)
+    ESTADO = [('presente', 'Presente'), ('ausente', 'Ausente'), ('excusado', 'Excusado')]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    asistencia = models.ForeignKey(Asistencia, on_delete=models.CASCADE)
+    estudiante = models.ForeignKey(Estudiante, on_delete=models.CASCADE)
+    estado = models.CharField(max_length=10, choices=ESTADO)
+    observaciones = models.TextField(blank=True, null=True)
+
 
 class EvaluacionAspecto(models.Model):
-    id_eva = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nombre_eva = models.CharField(max_length=50)
-    ponderacion_eva = models.DecimalField(max_digits=5, decimal_places=2)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nombre = models.CharField(max_length=50)
+    ponderacion = models.DecimalField(max_digits=5, decimal_places=2)
+
 
 class PeriodoAcademico(models.Model):
-    id_per = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    nombre_per = models.CharField(max_length=50)
-    representacion_per = models.CharField(max_length=10)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    nombre = models.CharField(max_length=50)
+    representacion = models.CharField(max_length=10)
