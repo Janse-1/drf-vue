@@ -66,7 +66,6 @@ const form = reactive({
   direccion: 'sin direccion',
   sexo: 'N',
   estado: 'activo',
-  grupo: ''
 })
 
 //limpiar formulario
@@ -86,6 +85,7 @@ const resetUsuario = () => {
   form.estado = 'activo'
   form.grupo = ''
 }
+
 
 const error = ref('')
 const mensajeExito = ref('')
