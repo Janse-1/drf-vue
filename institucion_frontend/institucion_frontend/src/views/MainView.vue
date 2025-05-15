@@ -1,53 +1,67 @@
 <template>
-  <div class="main-view">
+  <div class="main-layout">
     <header class="encabezado">
       <img src="../assets/images/logo.png" class="logo" />
-      <div>
+      <div class="user-info">
         <h2>Bienvenido, {{ user.first_name }} {{ user.last_name }}!</h2>
         <p class="rol">{{ user.tipo_usr }}</p>
       </div>
-       <button class="logout-button" @click="cerrarSesion">Cerrar sesión</button>
+
+
+      <nav class="navbar-header">
+        <a href="#"><i class="fa-solid fa-house"></i> Inicio</a>
+        <a href="#"><i class="fa-solid fa-newspaper"></i> Noticias</a>
+        <a href="#"><i class="fa-solid fa-envelope"></i> Contacto</a>
+        <button @click="cerrarSesion" class="logout-header">
+          <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+        </button>
+      </nav>
+
     </header>
 
-    <section class="contenido-principal">
+    <div class="contenido-total">
       <aside class="menu-lateral" v-if="user">
+        
         <!-- Estudiante y Padre -->
         <template v-if="user.tipo_usr === 'estudiante' || user.tipo_usr === 'padre'">
-          <a href="#">Mi perfil</a>
-          <a href="#">Mis notas</a>
-          <a href="#">Descargar boletín</a>
+          <a href="#"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#"><i class="fa-solid fa-book"></i> Mis notas</a>
+          <a href="#"><i class="fa-solid fa-download"></i> Descargar boletín</a>
         </template>
 
         <!-- Docente -->
         <template v-else-if="user.tipo_usr === 'docente'">
-          <a href="#">Mi perfil</a>
-          <a href="#">Mis notas</a>
-          <a href="#">Subir notas</a>
-          <a href="#">Estudiantes</a>
-          <a href="#">Mis cursos</a>
+          <a href="#"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#"><i class="fa-solid fa-book"></i> Mis notas</a>
+          <a href="#"><i class="fa-solid fa-upload"></i> Subir notas</a>
+          <a href="#"><i class="fa-solid fa-users"></i> Estudiantes</a>
+          <a href="#"><i class="fa-solid fa-chalkboard"></i> Mis cursos</a>
         </template>
 
         <!-- Coordinador o Admin -->
         <template v-else-if="user.tipo_usr === 'coordinador' || user.tipo_usr === 'admin'">
-          <a href="#">Mi perfil</a>
-          <a href="#">Subir notas</a>
-          <a href="#">Ver estudiantes</a>
-          <a href="#">Registrar estudiantes</a>
-          <a href="#">Registrar docentes</a>
-          <a href="#">Gestión de sedes</a>
-          <a href="#">Ver cursos</a>
+          <a href="#"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#"><i class="fa-solid fa-upload"></i> Subir notas</a>
+          <a href="#"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
+          <a href="#"><i class="fa-solid fa-user-plus"></i> Registrar estudiantes</a>
+          <a href="#"><i class="fa-solid fa-user-tie"></i> Registrar docentes</a>
+          <a href="#"><i class="fa-solid fa-school"></i> Gestión de sedes</a>
+          <a href="#"><i class="fa-solid fa-chalkboard"></i> Ver cursos</a>
         </template>
+
+        <hr>
+        
       </aside>
 
       <main class="seccion-dinamica">
-        <!-- Aquí iría el contenido según la opción seleccionada -->
         <p>Selecciona una opción del menú para comenzar.</p>
       </main>
-    </section>
+    </div>
 
     <FooterComponent />
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -108,25 +122,33 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.main-view {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #fff8f0;
-  min-height: 100vh;
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+.main-layout {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .encabezado {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   background-color: #D72638;
   color: white;
   padding: 1rem 2rem;
+  flex-wrap: wrap;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
 }
 
 .logo {
   width: 60px;
-  margin-right: 1rem;
 }
 
 .rol {
@@ -134,58 +156,113 @@ onMounted(async () => {
   font-style: italic;
 }
 
-.contenido-principal {
+.navbar-header {
   display: flex;
-  flex: 1;
-  padding: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-.menu-lateral {
-  width: 250px;
-  padding: 1rem;
-  background-color: #fff;
-  border-right: 2px solid #ddd;
-  display: flex;
-  flex-direction: column;
-}
-
-.menu-lateral a {
-  padding: 10px 0;
+.navbar-header a,
+.navbar-header button {
+  color: white;
   text-decoration: none;
-  color: #333;
   font-weight: 500;
-  border-bottom: 1px solid #eee;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  transition: background 0.2s;
 }
 
-.menu-lateral a:hover {
-  color: #D72638;
+.navbar-header a:hover,
+.navbar-header button:hover {
+  background-color: #c31f2d;
+  border-radius: 5px;
 }
 
-.seccion-dinamica {
-  flex: 1;
-  padding: 1rem 2rem;
+.logout-header {
+  background-color: #FFBA08;
+  color: black;
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 6px 12px;
 }
+
+.logout-header:hover {
+  background-color: #e0a800;
+}
+
 
 .user-info {
   flex: 1;
 }
 
-.logout-button {
-  background-color: #FFBA08;
-  color: black;
+.rol {
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.contenido-total {
+  flex: 1;
+  display: flex;
+  background-color: #fff8f0;
+}
+
+.menu-lateral {
+  width: 260px;
+  background-color: #fff;
+  border-right: 2px solid #ddd;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.menu-lateral a,
+.menu-lateral button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: none;
   border: none;
-  padding: 8px 16px;
-  font-weight: bold;
-  border-radius: 6px;
+  color: #333;
+  text-align: left;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
   cursor: pointer;
+}
+
+.menu-lateral a:hover,
+.menu-lateral button:hover {
+  background-color: #f3f3f3;
+  color: #D72638;
+}
+
+.logout-button {
+  margin-top: auto;
+  color: black;
+  font-weight: bold;
+  background-color: #FFBA08;
+  border-radius: 6px;
   transition: 0.3s;
-  position: absolute;
-  right: 0;
-  margin-right: 20px;
+  padding: 8px 12px;
 }
 
 .logout-button:hover {
   background-color: #e0a800;
 }
+
+.seccion-dinamica {
+  flex: 1;
+  padding: 2rem;
+}
+
 
 </style>
