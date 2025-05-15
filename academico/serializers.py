@@ -290,3 +290,79 @@ class SedeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sede
         fields = ['codigo_dane', 'nombre']    
+        
+        
+class EstudiantePerfilSerializer(serializers.ModelSerializer):
+    tipo_usr = serializers.CharField(source='usuario.tipo_usr')
+    username = serializers.CharField(source='usuario.user.username')
+    email = serializers.EmailField(source='correo')
+
+    class Meta:
+        model = Estudiante
+        fields = [
+            'username',
+            'tipo_usr',
+            'nombres',
+            'apellidos',
+            'email',
+            'telefono',
+            'direccion',
+            'fecha_nacimiento',
+            'sexo',
+            'estado',
+        ]
+
+class DocentePerfilSerializer(serializers.ModelSerializer):
+    tipo_usr = serializers.CharField(source='usuario.tipo_usr')
+    username = serializers.CharField(source='usuario.user.username')
+    email = serializers.EmailField(source='correo')
+
+    class Meta:
+        model = Docente
+        fields = [
+            'username',
+            'tipo_usr',
+            'nombres',
+            'apellidos',
+            'email',
+            'telefono',
+            'direccion',
+            'fecha_nacimiento',
+            'estado'
+        ]
+
+class CoordinadorPerfilSerializer(serializers.ModelSerializer):
+    tipo_usr = serializers.CharField(source='usuario.tipo_usr')
+    username = serializers.CharField(source='usuario.user.username')
+    email = serializers.EmailField(source='correo')
+
+    class Meta:
+        model = Coordinador
+        fields = [
+            'username',
+            'tipo_usr',
+            'nombres',
+            'apellidos',
+            'email',
+            'telefono',
+            'direccion',
+            'fecha_nacimiento',
+            'sexo'
+        ]
+
+class PadrePerfilSerializer(serializers.ModelSerializer):
+    tipo_usr = serializers.CharField(source='usuario.tipo_usr')
+    username = serializers.CharField(source='usuario.user.username')
+    email = serializers.EmailField(source='correo')
+
+    class Meta:
+        model = Padre
+        fields = [
+            'username',
+            'tipo_usr',
+            'nombres',
+            'apellidos',
+            'email',
+            'telefono',
+            'direccion'
+        ]

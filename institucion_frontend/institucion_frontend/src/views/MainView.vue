@@ -24,14 +24,14 @@
         
         <!-- Estudiante y Padre -->
         <template v-if="user.tipo_usr === 'estudiante' || user.tipo_usr === 'padre'">
-          <a href="#"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click="mostrarPerfil = true"><i class="fa-solid fa-user"></i> Mi perfil</a>
           <a href="#"><i class="fa-solid fa-book"></i> Mis notas</a>
           <a href="#"><i class="fa-solid fa-download"></i> Descargar boletín</a>
         </template>
 
         <!-- Docente -->
         <template v-else-if="user.tipo_usr === 'docente'">
-          <a href="#"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click="mostrarPerfil = true"><i class="fa-solid fa-user"></i> Mi perfil</a>
           <a href="#"><i class="fa-solid fa-book"></i> Mis notas</a>
           <a href="#"><i class="fa-solid fa-upload"></i> Subir notas</a>
           <a href="#"><i class="fa-solid fa-users"></i> Estudiantes</a>
@@ -40,7 +40,7 @@
 
         <!-- Coordinador o Admin -->
         <template v-else-if="user.tipo_usr === 'coordinador' || user.tipo_usr === 'admin'">
-          <a href="#"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click="mostrarPerfil = true"><i class="fa-solid fa-user"></i> Mi perfil</a>
           <a href="#"><i class="fa-solid fa-upload"></i> Subir notas</a>
           <a href="#"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
           <a href="#"><i class="fa-solid fa-user-plus"></i> Registrar estudiantes</a>
@@ -54,7 +54,7 @@
       </aside>
 
       <main class="seccion-dinamica">
-        <p>Selecciona una opción del menú para comenzar.</p>
+        <MiPerfil v-if="mostrarPerfil" />
       </main>
     </div>
 
@@ -67,6 +67,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FooterComponent from '@/components/FooterComponent.vue'
+import MiPerfil from '@/components/MiPerfil.vue';
+
+const mostrarPerfil = ref(false);
 
 const user = ref({
   username: '',

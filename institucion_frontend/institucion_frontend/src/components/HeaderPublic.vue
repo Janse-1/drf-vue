@@ -10,9 +10,6 @@
         <a href="/" title="Inicio">
           <i class="fa-solid fa-house"></i> Inicio
         </a>
-        <a v-if="!isLoginView" href="/LoginView" title="Iniciar sesión">
-          <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
-        </a>
         <a href="#" title="¿Quiénes somos?">
           <i class="fa-solid fa-users"></i> Quiénes somos
         </a>
@@ -24,6 +21,9 @@
         </a>
         <a href="#" title="Contacto">
           <i class="fa-solid fa-envelope"></i> Contacto
+        </a>
+        <a v-if="!isLoginView" href="/LoginView" title="Iniciar sesión">
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
         </a>
       </nav>
     </div>
