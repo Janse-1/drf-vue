@@ -1,17 +1,18 @@
 <script setup>
-import { computed } from 'vue';
-import { useVModel } from '@vueuse/core';
+const props = defineProps(['modelValue'])
+const emit = defineEmits(['update:modelValue'])
 
-const props = defineProps(['modelValue']);
-const emit = defineEmits(['update:modelValue']);
-const form = useVModel(props, 'modelValue', emit);
+const form = props.modelValue
+
+const updateField = (key, value) => {
+  emit('update:modelValue', { ...form, [key]: value })
+}
 </script>
 
 <template>
   <div>
     <h3>Información del padre de familia</h3>
-    <input v-model="form.ocupacion" placeholder="Ocupación" />
-    <input v-model="form.telefono" placeholder="Teléfono" />
-    <input v-model="form.direccion" placeholder="Dirección" />
+    <input :value="form.telefono" @input="updateField('telefono', $event.target.value)" placeholder="Teléfono" />
+    <input :value="form.direccion" @input="updateField('direccion', $event.target.value)" placeholder="Dirección" />
   </div>
 </template>

@@ -1,10 +1,5 @@
 <script setup>
-import { computed } from 'vue';
-import { useVModel } from '@vueuse/core';
 
-const props = defineProps(['modelValue']);
-const emit = defineEmits(['update:modelValue']);
-const form = useVModel(props, 'modelValue', emit);
 </script>
 
 <template>

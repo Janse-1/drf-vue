@@ -41,7 +41,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
     # Específicos por tipo
     sexo = serializers.CharField(required=False)  # Solo para coordinador
     estado = serializers.CharField(required=False)  # Para estudiante y docente
-    grupo_id = serializers.UUIDField(required=False)
+    grupo = serializers.UUIDField(required=False)
     sede_codigo_dane_id = serializers.UUIDField(required=False)
     sede_id = serializers.CharField(required=False)
 
@@ -51,7 +51,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
             'username', 'email', 'password', 'first_name', 'last_name',
             'tipo_usr', 'documento', 'tipo_documento', 'fecha_nacimiento',
             'telefono', 'direccion', 'sexo', 'estado', 'nombres',
-            'apellidos', 'grupo_id', 'sede_codigo_dane_id', 'sede_id'
+            'apellidos', 'grupo', 'sede_codigo_dane_id', 'sede_id'
         ]
 
     def validate(self, attrs):
@@ -92,25 +92,25 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         fecha_nacimiento = validated_data.pop('fecha_nacimiento', None)
         telefono = validated_data.pop('telefono', None)
         direccion = validated_data.pop('direccion', None)
-        nombres = validated_data.pop('nombres', '')
-        apellidos = validated_data.pop('apellidos', '')
+        nombres = validated_data.pop('nombres', user_data.get('first_name', ''))
+        apellidos = validated_data.pop('apellidos', user_data.get('last_name', ''))
+
 
         # Datos específicos
         sexo = validated_data.pop('sexo', None)
         estado = validated_data.pop('estado', None)
-        grupo_id = validated_data.pop('grupo_id', None) 
+        grupo = validated_data.pop('grupo', None) 
         sede_codigo_dane = validated_data.pop('sede_codigo_dane_id', None)
         sede_id = validated_data.pop('sede_id', None)
         
         
         if tipo == 'estudiante':
-         grupo_id = validated_data.pop('grupo_id', None)
-         if not grupo_id:
-            raise serializers.ValidationError({"grupo_id": "Este campo es requerido para estudiantes."})
+         if not grupo:
+            raise serializers.ValidationError({"grupo": "Este campo es requerido para estudiantes."})
          try:
-            grupo = Grupo.objects.get(id=grupo_id)
+            grupo = Grupo.objects.get(id=grupo)
          except Grupo.DoesNotExist:
-            raise serializers.ValidationError({"grupo_id": "Grupo no encontrado."})
+            raise serializers.ValidationError({"grupo": "Grupo no encontrado."})
         
         
         if tipo == 'coordinador':

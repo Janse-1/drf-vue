@@ -7,23 +7,28 @@
         <input v-model="form.first_name" type="text" placeholder="Nombres" required />
         <input v-model="form.last_name" type="text" placeholder="Apellidos" required />
         <input v-model="form.email" type="email" placeholder="Correo electrónico" required />
-        <input v-model="form.password" type="password" placeholder="Contraseña" required />
+        <div class="password-field">
+         <input :type="mostrarPassword ? 'text' : 'password'" v-model="form.password" placeholder="Contraseña" required />
+            <button type="button" @click="mostrarPassword = !mostrarPassword">
+                {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
+            </button>
+        </div>
         <select v-model="form.tipo_usr" required>
           <option disabled value="">Seleccione tipo de usuario</option>
-          <option value="ESTUDIANTE">Estudiante</option>
-          <option value="DOCENTE">Docente</option>
-          <option value="COORDINADOR">Coordinador</option>
-          <option value="PADRE">Padre</option>
+          <option value="estudiante">Estudiante</option>
+          <option value="docente">Docente</option>
+          <option value="coordinador">Coordinador</option>
+          <option value="padre">Padre</option>
         </select>
       </div>
 
       <CamposComunes v-model="form" />
 
       <!-- Campos dinámicos según tipo de usuario -->
-      <RegistroEstudiante v-if="form.tipo_usr === 'ESTUDIANTE'" v-model="form" />
-      <RegistroDocente v-if="form.tipo_usr === 'DOCENTE'" v-model="form" />
-      <RegistroCoordinador v-if="form.tipo_usr === 'COORDINADOR'" v-model="form" />
-      <RegistroPadre v-if="form.tipo_usr === 'PADRE'" v-model="form" />
+      <RegistroEstudiante v-if="form.tipo_usr === 'estudiante'" v-model="form" />
+      <RegistroDocente v-if="form.tipo_usr === 'docente'" v-model="form" />
+      <RegistroCoordinador v-if="form.tipo_usr === 'coordinador'" v-model="form" />
+      <RegistroPadre v-if="form.tipo_usr === 'padre'" v-model="form" />
 
       <button type="submit" class="boton-registrar">Registrar</button>
     </form>
@@ -44,6 +49,8 @@ import RegistroDocente from '@/components/registro/RegistroDocente.vue'
 import RegistroCoordinador from '@/components/registro/RegistroCoordinador.vue'
 import RegistroPadre from '@/components/registro/RegistroPadre.vue'
 
+
+const mostrarPassword = ref(false);
 // Objeto reactivo para el formulario
 const form = reactive({
   username: '',
@@ -52,14 +59,33 @@ const form = reactive({
   first_name: '',
   last_name: '',
   tipo_usr: '',
-  documento: '',
-  tipo_documento: '',
-  fecha_nacimiento: '',
-  telefono: '',
-  direccion: '',
-  sexo: '',
-  estado: ''
+  documento: '0000000000',
+  tipo_documento: 'N/A',
+  fecha_nacimiento: '2000-01-01',
+  telefono: '000000000',
+  direccion: 'sin direccion',
+  sexo: 'N',
+  estado: 'activo',
+  grupo: ''
 })
+
+//limpiar formulario
+const resetUsuario = () => {
+  form.username = ''
+  form.email = ''
+  form.password = ''
+  form.first_name = ''
+  form.last_name = ''
+  form.tipo_usr = ''
+  form.documento = '0000000000'
+  form.tipo_documento = 'N/A'
+  form.fecha_nacimiento = '2000-01-01'
+  form.telefono = '000000000'
+  form.direccion = 'sin direccion'
+  form.sexo = 'N'
+  form.estado = 'activo'
+  form.grupo = ''
+}
 
 const error = ref('')
 const mensajeExito = ref('')
@@ -67,10 +93,14 @@ const mensajeExito = ref('')
 const registrarUsuario = async () => {
   error.value = ''
   mensajeExito.value = ''
+
   try {
-    const response = await axios.post('/api/registro/', form)
+    console.log('Formulario que se envía:', JSON.parse(JSON.stringify(form)))
+
+    const response = await axios.post('http://127.0.0.1:8000/api/registro/', form)
     mensajeExito.value = 'Usuario registrado con éxito'
-    // Puedes redirigir o limpiar el formulario si lo deseas
+    resetUsuario();
+    
   } catch (err) {
     if (err.response?.data) {
       const data = err.response.data
