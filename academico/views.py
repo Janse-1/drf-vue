@@ -1,6 +1,6 @@
 from rest_framework import viewsets, mixins
-from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado, Usuario
-from .serializers import DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer, AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer, UsuarioRegistroSerializer
+from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado, Usuario, Sede
+from .serializers import DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer, AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer, UsuarioRegistroSerializer, SedeSerializer
 
 
 class DocenteViewSet(viewsets.ModelViewSet):
@@ -34,3 +34,8 @@ class EstudianteAsignaturaCursoGradoViewSet(viewsets.ModelViewSet):
 class RegistroUsuarioView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioRegistroSerializer
+    
+    
+class SedeListView(viewsets.ModelViewSet):
+    queryset = Sede.objects.all()
+    serializer_class = SedeSerializer

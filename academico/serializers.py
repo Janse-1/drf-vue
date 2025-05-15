@@ -42,8 +42,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
     sexo = serializers.CharField(required=False)  # Solo para coordinador
     estado = serializers.CharField(required=False)  # Para estudiante y docente
     grupo = serializers.UUIDField(required=False)
-    sede_codigo_dane_id = serializers.UUIDField(required=False)
-    sede_id = serializers.CharField(required=False)
+    sede = serializers.CharField(required=False)
 
     class Meta:
         model = Usuario
@@ -51,7 +50,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
             'username', 'email', 'password', 'first_name', 'last_name',
             'tipo_usr', 'documento', 'tipo_documento', 'fecha_nacimiento',
             'telefono', 'direccion', 'sexo', 'estado', 'nombres',
-            'apellidos', 'grupo', 'sede_codigo_dane_id', 'sede_id'
+            'apellidos', 'grupo', 'sede'
         ]
 
     def validate(self, attrs):
@@ -100,8 +99,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         sexo = validated_data.pop('sexo', None)
         estado = validated_data.pop('estado', None)
         grupo = validated_data.pop('grupo', None) 
-        sede_codigo_dane = validated_data.pop('sede_codigo_dane_id', None)
-        sede_id = validated_data.pop('sede_id', None)
+        sede_codigo = validated_data.pop('sede', None)
         
         
         if tipo == 'estudiante':
@@ -114,9 +112,8 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         
         
         if tipo == 'coordinador':
-            sede_id = validated_data.get('sede_id')
             try:
-                sede = Sede.objects.get(codigo_dane=sede_id)
+                sede = Sede.objects.get(codigo_dane=sede_codigo)
             except Sede.DoesNotExist:
                 raise serializers.ValidationError({'sede_id': 'Sede no encontrada.'})
 
@@ -182,7 +179,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
             correo=user.email,
             direccion=direccion,
             fecha_nacimiento=fecha_nacimiento,
-            sede_id=sede
+            sede_id=sede.codigo_dane
             )
         elif tipo == 'padre':
             Padre.objects.create(
@@ -286,3 +283,10 @@ class EstudianteAsignaturaCursoGradoSerializer(serializers.ModelSerializer):
                 "Este estudiante ya tiene asignada esta asignatura para el mismo grupo y grado."
             )
         return data
+    
+
+    
+class SedeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sede
+        fields = ['codigo_dane', 'nombre']    
