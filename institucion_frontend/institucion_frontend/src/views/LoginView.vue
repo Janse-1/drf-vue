@@ -1,4 +1,6 @@
 <template>
+<HeaderPublic />
+
   <div class="login-box">
     <img src="@/assets/images/logo.png" alt="Logo IEI Wayuu" />
     <div class="decor-box">
@@ -34,11 +36,15 @@
       <a class="forgot-password" href="#">¿Olvidaste tu contraseña?</a>
     </form>
   </div>
+
+  <FooterComponent />
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import FooterComponent from '@/components/FooterComponent.vue';
+import HeaderPublic from '@/components/HeaderPublic.vue';
 
 const username = ref('')
 const password = ref('')

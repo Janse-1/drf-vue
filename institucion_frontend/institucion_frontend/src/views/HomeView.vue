@@ -1,15 +1,6 @@
 <template>
   <div class="home-container">
-    <header class="navbar">
-      <div class="logo">
-        <img src="@/assets/images/logo.png" alt="Logo Colegio" width="50" />
-        <span>Sistema Académico Wayuu</span>
-      </div>
-      <nav>
-        <a href="/">Inicio</a>
-        <a href="/LoginView">Iniciar sesión</a>
-      </nav>
-    </header>
+    <HeaderPublic />
 
     <main class="main-content">
       <section class="hero">
@@ -41,6 +32,7 @@
 
 <script setup>
 import FooterComponent from '@/components/FooterComponent.vue';
+import HeaderPublic from '@/components/HeaderPublic.vue';
 
 </script>
 
