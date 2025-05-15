@@ -35,18 +35,13 @@
       </section>
     </main>
 
-    <footer>
-      <p>© 2025 IEI Wayuu N°1 - La Guajira, Colombia</p>
-      <p>Desarrollado por el equipo de Ingeniería de Sistemas</p>
-      <p>Contacto: contacto@iein1.edu.co</p>
-    </footer>
+    <FooterComponent />
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HomeView'
-};
+<script setup>
+import FooterComponent from '@/components/FooterComponent.vue';
+
 </script>
 
 <style scoped>

@@ -26,7 +26,6 @@
     </div>
 
     <div class="footer-bottom">
-      <img src="../assets/images/footer_bg.png" alt="Decoración Wayuu" class="footer-bg" />
       <p>© 2025 IEI N°1. Todos los derechos reservados. Desarrollado por el equipo de Ingeniería de Sistemas.</p>
     </div>
   </footer>
@@ -41,6 +40,10 @@
   font-family: 'Segoe UI', sans-serif;
   padding-top: 2rem;
   border-top: 5px solid #D72638;
+  background-image: url('../assets/images/footer_bg.png');
+  background-size: cover;         /* Ajusta imagen al ancho */
+  background-repeat: no-repeat;   /* No repetir */
+  background-position:center top /* Centrado horizontal, pegado abajo */
 }
 
 .footer-content {
