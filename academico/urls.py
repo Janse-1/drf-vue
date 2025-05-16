@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     DocenteViewSet, EstudianteViewSet, GradoViewSet, GrupoViewSet, AsignaturaViewSet, 
     AsignaturaDocenteGrupoViewSet, EstudianteAsignaturaCursoGradoViewSet, RegistroUsuarioView,
-    SedeListView, PerfilDetalladoAPIView 
+    SedeListView, PerfilDetalladoAPIView, EvaluacionesDocenteAPIView, CalificacionCreateAPIView,
+    NotaFinalEstudianteAPIView
 )
 
 router = DefaultRouter()
@@ -20,5 +21,8 @@ router.register(r'sedes', SedeListView)
 urlpatterns = [
     path('', include(router.urls)),
     path('perfil-detallado/', PerfilDetalladoAPIView.as_view(), name='perfil-detallado'),
+    path('docente/evaluaciones/', EvaluacionesDocenteAPIView.as_view(), name='evaluaciones-docente'),
+    path('docente/calificaciones/', CalificacionCreateAPIView.as_view(), name='calificaciones-create'),
+    path('docente/nota-final/', NotaFinalEstudianteAPIView.as_view(), name='nota-final-estudiante'),
 ]
 

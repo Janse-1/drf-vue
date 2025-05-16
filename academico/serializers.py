@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from djoser.serializers import UserSerializer as BaseUserSerializer, ValidationError, IntegrityError
-from .models import Usuario, Padre, Coordinador, User, Sede
+from .models import Usuario, Padre, Coordinador, User, Sede, Evaluacion, Calificacion
 from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
 
 #Aqui retorna datos GET
@@ -366,3 +366,46 @@ class PadrePerfilSerializer(serializers.ModelSerializer):
             'telefono',
             'direccion'
         ]
+        
+        
+class EvaluacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Evaluacion
+        fields = ['id', 'nombre', 'tipo', 'fecha', 'asignatura', 'grupo']
+        
+        
+        
+class CalificacionSerializer(serializers.ModelSerializer):
+    nombre_estudiante = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Calificacion
+        fields = [
+            'id',
+            'evaluacion',
+            'estudiante',
+            'nombre_estudiante',
+            'nota',
+            'observaciones'
+        ]
+
+    def validate_nota(self, value):
+        if value < 0 or value > 5:
+            raise serializers.ValidationError("La nota debe estar entre 0 y 5")
+        return value
+
+    def get_nombre_estudiante(self, obj):
+        return f"{obj.estudiante.nombres} {obj.estudiante.apellidos}"
+
+
+
+class NotaFinalEstudianteSerializer(serializers.Serializer):
+    estudiante = serializers.CharField()
+    grupo = serializers.CharField()
+    asignatura = serializers.CharField()
+    actividades = serializers.ListField(child=serializers.FloatField())
+    examenes_finales = serializers.ListField(child=serializers.FloatField())
+    asistencia = serializers.FloatField()
+    disciplina = serializers.FloatField()
+    nota_final = serializers.FloatField()
+    

@@ -165,7 +165,7 @@ class Evaluacion(models.Model):
     asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE)
     grupo = models.ForeignKey(Grupo, on_delete=models.CASCADE)
     fecha = models.DateField()
-    ponderacion = models.DecimalField(max_digits=5, decimal_places=2)
+    ponderacion = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
 
 
 class Calificacion(models.Model):
