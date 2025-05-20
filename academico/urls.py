@@ -4,7 +4,7 @@ from .views import (
     DocenteViewSet, EstudianteViewSet, GradoViewSet, GrupoViewSet, AsignaturaViewSet, 
     AsignaturaDocenteGrupoViewSet, EstudianteAsignaturaCursoGradoViewSet, RegistroUsuarioView,
     SedeListView, PerfilDetalladoAPIView, EvaluacionesDocenteAPIView, CalificacionCreateAPIView,
-    NotaFinalEstudianteAPIView
+    NotaFinalEstudianteAPIView, AsignaturasGruposDocenteAPIView
 )
 
 router = DefaultRouter()
@@ -24,5 +24,6 @@ urlpatterns = [
     path('docente/evaluaciones/', EvaluacionesDocenteAPIView.as_view(), name='evaluaciones-docente'),
     path('docente/calificaciones/', CalificacionCreateAPIView.as_view(), name='calificaciones-create'),
     path('docente/nota-final/', NotaFinalEstudianteAPIView.as_view(), name='nota-final-estudiante'),
+    path('docente/asignaturas-grupos/', AsignaturasGruposDocenteAPIView.as_view(), name='asignaturas-grupos-docente'),
 ]
 

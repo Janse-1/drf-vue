@@ -1,4 +1,5 @@
 <template>
+  
   <div class="registro-box">
     <img src="../assets/images/logo.png" alt="Logo IEI Wayuu" />
     <div class="decor-box">
@@ -43,12 +44,16 @@
       <div v-if="mensajeExito" class="exito">{{ mensajeExito }}</div>
     </form>
   </div>
+
+  
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+// import HeaderPublic from '@/components/HeaderPublic.vue'
+// import FooterComponent from '@/components/FooterComponent.vue'
 
 import CamposComunes from '@/components/registro/CamposComunes.vue'
 import RegistroEstudiante from '@/components/registro/RegistroEstudiante.vue'
@@ -105,7 +110,7 @@ const registrarUsuario = async () => {
     mensajeExito.value = 'Usuario registrado con éxito'
     resetUsuario()
     setTimeout(() => {
-      router.push('/LoginView')
+      router.push('/RegistroView')
     }, 1000)
   } catch (err) {
     if (err.response?.data) {

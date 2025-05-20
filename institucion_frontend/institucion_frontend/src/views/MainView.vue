@@ -24,29 +24,26 @@
         
         <!-- Estudiante y Padre -->
         <template v-if="user.tipo_usr === 'estudiante' || user.tipo_usr === 'padre'">
-          <a href="#" @click="mostrarPerfil = true"><i class="fa-solid fa-user"></i> Mi perfil</a>
-          <a href="#"><i class="fa-solid fa-book"></i> Mis notas</a>
-          <a href="#"><i class="fa-solid fa-download"></i> Descargar boletín</a>
+          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click="mostrarVista"><i class="fa-solid fa-book"></i> Mis notas</a>
         </template>
 
         <!-- Docente -->
         <template v-else-if="user.tipo_usr === 'docente'">
-          <a href="#" @click="mostrarPerfil = true"><i class="fa-solid fa-user"></i> Mi perfil</a>
-          <a href="#"><i class="fa-solid fa-book"></i> Mis notas</a>
-          <a href="#"><i class="fa-solid fa-upload"></i> Subir notas</a>
-          <a href="#"><i class="fa-solid fa-users"></i> Estudiantes</a>
+          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click="mostrarVista = 'subirEvaluacion'"><i class="fa-solid fa-upload"></i> Subir notas</a>
+          <a href="#" @click="mostrarVista = 'verEstudiantes'"><i class="fa-solid fa-users"></i>  Ver a Estudiantes</a>
           <a href="#"><i class="fa-solid fa-chalkboard"></i> Mis cursos</a>
         </template>
 
         <!-- Coordinador o Admin -->
         <template v-else-if="user.tipo_usr === 'coordinador' || user.tipo_usr === 'admin'">
-          <a href="#" @click="mostrarPerfil = true"><i class="fa-solid fa-user"></i> Mi perfil</a>
-          <a href="#"><i class="fa-solid fa-upload"></i> Subir notas</a>
-          <a href="#"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
-          <a href="#"><i class="fa-solid fa-user-plus"></i> Registrar estudiantes</a>
-          <a href="#"><i class="fa-solid fa-user-tie"></i> Registrar docentes</a>
+          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click="mostrarVista = 'subirEvaluacion'"><i class="fa-solid fa-upload"></i> Subir notas</a>
+          <a href="#" @click="mostrarVista = 'verEstudiantes'"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
+          <a href="#" @click="mostrarVista = 'registrar'"><i class="fa-solid fa-user-plus"></i> Registrar</a>
           <a href="#"><i class="fa-solid fa-school"></i> Gestión de sedes</a>
-          <a href="#"><i class="fa-solid fa-chalkboard"></i> Ver cursos</a>
+          <a href="#"><i class="fa-solid fa-school"></i> Boletines</a>
         </template>
 
         <hr>
@@ -54,7 +51,11 @@
       </aside>
 
       <main class="seccion-dinamica">
-        <MiPerfil v-if="mostrarPerfil" />
+        <MiPerfil v-if="mostrarVista=== 'perfil'" />
+        <SubirEvaluaciones v-if="mostrarVista === 'subirEvaluacion'" />
+        <VerEstudiantes v-if="mostrarVista === 'verEstudiantes'" />
+        <RegistroView v-if="mostrarVista === 'registrar'" />
+
       </main>
     </div>
 
@@ -68,8 +69,11 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FooterComponent from '@/components/FooterComponent.vue'
 import MiPerfil from '@/components/MiPerfil.vue';
+import SubirEvaluaciones from '@/components/SubirEvaluaciones.vue';
+import VerEstudiantes from '@/components/VerEstudiantes.vue';
+import RegistroView from './RegistroView.vue';
 
-const mostrarPerfil = ref(false);
+const mostrarVista = ref(null);
 
 const user = ref({
   username: '',

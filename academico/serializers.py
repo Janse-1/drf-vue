@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.response import Response
 from djoser.serializers import UserSerializer as BaseUserSerializer, ValidationError, IntegrityError
 from .models import Usuario, Padre, Coordinador, User, Sede, Evaluacion, Calificacion
 from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
@@ -260,9 +261,13 @@ class AsignaturaDocenteGrupoSerializer(serializers.ModelSerializer):
 
 
 class EstudianteAsignaturaCursoGradoSerializer(serializers.ModelSerializer):
+    estudiante = EstudianteSerializer(read_only=True)
+    grupo = GrupoSerializer(read_only=True)
+    asignatura = AsignaturaSerializer(read_only=True)
+
     class Meta:
         model = EstudianteAsignaturaCursoGrado
-        fields = '__all__'
+        fields = ['id', 'estudiante', 'grupo', 'grado', 'asignatura']
 
     def validate(self, data):
         estudiante = data.get('estudiante')
@@ -283,6 +288,11 @@ class EstudianteAsignaturaCursoGradoSerializer(serializers.ModelSerializer):
                 "Este estudiante ya tiene asignada esta asignatura para el mismo grupo y grado."
             )
         return data
+    
+    def get(self, request, grupo_id):
+        estudiantes = Estudiante.objects.filter(grupo_id=grupo_id)
+        serializer = EstudianteSerializer(estudiantes, many=True)
+        return Response(serializer.data)
     
 
     
@@ -409,3 +419,24 @@ class NotaFinalEstudianteSerializer(serializers.Serializer):
     disciplina = serializers.FloatField()
     nota_final = serializers.FloatField()
     
+
+class GrupoSerializerMini(serializers.ModelSerializer):
+    class Meta:
+        model = Grupo
+        fields = ['id', 'nombre']
+
+class AsignaturaSerializerMini(serializers.ModelSerializer):
+    class Meta:
+        model = Asignatura
+        fields = ['id', 'nombre']
+
+class AsignaturaDocenteGrupoExpandidoSerializer(serializers.ModelSerializer):
+    asignatura = AsignaturaSerializerMini(read_only=True)
+    grupo = GrupoSerializerMini(read_only=True)
+
+    class Meta:
+        model = AsignaturaDocenteGrupo
+        fields = ['id', 'asignatura', 'grupo']
+        
+        
+        

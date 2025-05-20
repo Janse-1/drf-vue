@@ -1,4 +1,6 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from decimal import Decimal
@@ -9,7 +11,7 @@ from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializ
                           AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer,
                           UsuarioRegistroSerializer, SedeSerializer, EstudiantePerfilSerializer, DocentePerfilSerializer,
                           CoordinadorPerfilSerializer, PadrePerfilSerializer, EvaluacionSerializer, CalificacionSerializer,
-                          NotaFinalEstudianteSerializer
+                          NotaFinalEstudianteSerializer, AsignaturaDocenteGrupoExpandidoSerializer
                           )
 
 
@@ -40,6 +42,8 @@ class AsignaturaDocenteGrupoViewSet(viewsets.ModelViewSet):
 class EstudianteAsignaturaCursoGradoViewSet(viewsets.ModelViewSet):
     queryset = EstudianteAsignaturaCursoGrado.objects.all()
     serializer_class = EstudianteAsignaturaCursoGradoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['grupo', 'asignatura']
     
 class RegistroUsuarioView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Usuario.objects.all()
@@ -291,7 +295,7 @@ class NotaFinalEstudianteAPIView(APIView):
             Decimal(nota_examen) * Decimal('0.2') +
             Decimal(nota_asistencia) * Decimal('0.1') +
             Decimal(nota_disciplina) * Decimal('0.1')
-)
+        )
 
         data = {
             'estudiante': f"{estudiante.nombres} {estudiante.apellidos}",
@@ -306,3 +310,87 @@ class NotaFinalEstudianteAPIView(APIView):
 
         serializer = NotaFinalEstudianteSerializer(data)
         return Response(serializer.data)
+
+
+class AsignaturasGruposDocenteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        docente = getattr(request.user.usuario, 'docente', None)
+        if not docente:
+            return Response({'detail': 'No autorizado como docente'}, status=403)
+
+        asignaciones = AsignaturaDocenteGrupo.objects.filter(docente=docente).select_related('asignatura', 'grupo')
+        serializer = AsignaturaDocenteGrupoExpandidoSerializer(asignaciones, many=True)
+        return Response(serializer.data)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def obtener_info_docente(request):
+    docente = request.user
+    asignaciones = AsignaturaDocenteGrupo.objects.filter(docente__usuario=docente)
+    grupos = Grupo.objects.filter(asignaturas__docente__usuario=docente).distinct()
+
+    data = {
+        'nombre': docente.get_full_name(),
+        'asignatura': asignaciones[0].asignatura.nombre if asignaciones else '',
+        'grupos': [{'id': g.id, 'nombre': g.nombre} for g in grupos]
+    }
+    return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def obtener_info_docente(request):
+    docente = request.user
+    asignaciones = AsignaturaDocenteGrupo.objects.filter(docente__usuario=docente)
+    grupos = Grupo.objects.filter(asignaturas__docente__usuario=docente).distinct()
+
+    data = {
+        'nombre': docente.get_full_name(),
+        'asignatura': asignaciones[0].asignatura.nombre if asignaciones else '',
+        'grupos': [{'id': g.id, 'nombre': g.nombre} for g in grupos]
+    }
+    return Response(data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def obtener_estudiantes_grupo(request, grupo_id):
+    estudiantes = Estudiante.objects.filter(grupo_id=grupo_id)
+    data = [{'id': e.id, 'nombre': f'{e.usuario.first_name} {e.usuario.last_name}'} for e in estudiantes]
+    return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def obtener_sede_coordinador(request):
+    coordinador = request.user
+    sede = get_object_or_404(Sede, coordinador__usuario=coordinador)
+
+    grados = sede.grado_set.all()
+
+    data = {
+        'nombre': sede.nombre,
+        'grados': [
+            {
+                'id': grado.id,
+                'nombre': grado.nombre,
+                'grupos': [
+                    {
+                        'id': grupo.id,
+                        'nombre': grupo.nombre,
+                        'estudiantes': [
+                            {
+                                'id': est.id,
+                                'nombre': f'{est.usuario.first_name} {est.usuario.last_name}'
+                            } for est in grupo.estudiante_set.all()
+                        ]
+                    } for grupo in grado.grupo_set.all()
+                ]
+            } for grado in grados
+        ]
+    }
+    return Response(data)
+
+
