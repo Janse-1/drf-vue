@@ -6,12 +6,12 @@ from rest_framework.response import Response
 from decimal import Decimal
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from .models import Docente, Estudiante, Grado, Grupo, Asignatura, Evaluacion, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado, Usuario, Sede, Coordinador, Padre, Calificacion
+from .models import Docente, Estudiante, Grado, Grupo, Rector, Asignatura, Evaluacion, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado, Usuario, Sede, Coordinador, Calificacion
 from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer,
                           AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer,
                           UsuarioRegistroSerializer, SedeSerializer, EstudiantePerfilSerializer, DocentePerfilSerializer,
-                          CoordinadorPerfilSerializer, PadrePerfilSerializer, EvaluacionSerializer, CalificacionSerializer,
-                          NotaFinalEstudianteSerializer, AsignaturaDocenteGrupoExpandidoSerializer
+                          CoordinadorPerfilSerializer,  EvaluacionSerializer, CalificacionSerializer,
+                          NotaFinalEstudianteSerializer, AsignaturaDocenteGrupoExpandidoSerializer, RectorPerfilSerializer
                           )
 
 
@@ -90,12 +90,12 @@ class PerfilDetalladoAPIView(APIView):
             except Coordinador.DoesNotExist:
                 return Response({"detail": "Perfil de coordinador no encontrado"}, status=404)
 
-        elif tipo == 'padre':
+        elif tipo == 'rector':
             try:
-                perfil = Padre.objects.get(usuario=usuario)
-                serializer = PadrePerfilSerializer(perfil)
-            except Padre.DoesNotExist:
-                return Response({"detail": "Perfil de padre no encontrado"}, status=404)
+                perfil = Rector.objects.get(usuario=usuario)
+                serializer = RectorPerfilSerializer(perfil)
+            except Rector.DoesNotExist:
+                return Response({"detail": "Perfil de rector no encontrado"}, status=404)
 
         else:
             return Response({"detail": "Tipo de usuario no válido"}, status=400)
@@ -392,5 +392,4 @@ def obtener_sede_coordinador(request):
         ]
     }
     return Response(data)
-
 

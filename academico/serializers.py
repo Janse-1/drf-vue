@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from rest_framework.response import Response
-from djoser.serializers import UserSerializer as BaseUserSerializer, ValidationError, IntegrityError
-from .models import Usuario, Padre, Coordinador, User, Sede, Evaluacion, Calificacion
+from rest_framework.exceptions import ValidationError
+from django.db import IntegrityError
+from djoser.serializers import UserSerializer
+from .models import Usuario, Coordinador, User, Sede, Evaluacion, Calificacion, Rector
 from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
 
 #Aqui retorna datos GET
@@ -40,8 +42,8 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
     
 
     # Específicos por tipo
-    sexo = serializers.CharField(required=False)  # Solo para coordinador
-    estado = serializers.CharField(required=False)  # Para estudiante y docente
+    sexo = serializers.CharField(required=False)  
+    estado = serializers.CharField(required=False) 
     grupo = serializers.UUIDField(required=False)
     sede = serializers.CharField(required=False)
 
@@ -58,15 +60,15 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         tipo = attrs.get('tipo_usr')
         missing = []
 
-        if tipo in ['estudiante', 'docente', 'coordinador']:
+        if tipo in ['estudiante', 'docente', 'coordinador', 'rector']:
             for field in ['documento', 'tipo_documento', 'fecha_nacimiento', 'telefono', 'direccion']:
                 if not attrs.get(field):
                     missing.append(field)
 
-        if tipo == 'coordinador' and not attrs.get('sexo'):
+        if tipo in ['coordinador', 'rector'] and not attrs.get('sexo'):
             missing.append('sexo')
 
-        if tipo in ['estudiante', 'docente'] and not attrs.get('estado'):
+        if tipo in ['estudiante', 'docente' , 'rector', 'coordinador'] and not attrs.get('estado'):
             missing.append('estado')
 
         if missing:
@@ -74,6 +76,10 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
 
         # Validación del campo estado
         estado = attrs.get('estado')
+        if tipo == 'rector' and estado and estado not in ['activo', 'inactivo']:
+            raise ValidationError({'estado': 'Estado inválido para rector.'})
+        if tipo == 'coordinador' and estado and estado not in ['activo', 'inactivo']:
+            raise ValidationError({'estado': 'Estado inválido para coordinador.'})
         if tipo == 'docente' and estado and estado not in ['activo', 'inactivo']:
             raise ValidationError({'estado': 'Estado inválido para docente.'})
         if tipo == 'estudiante' and estado and estado not in ['activo', 'graduado', 'inactivo']:
@@ -112,7 +118,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"grupo": "Grupo no encontrado."})
         
         
-        if tipo == 'coordinador':
+        if tipo == 'rector':
             try:
                 sede = Sede.objects.get(codigo_dane=sede_codigo)
             except Sede.DoesNotExist:
@@ -180,16 +186,23 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
             correo=user.email,
             direccion=direccion,
             fecha_nacimiento=fecha_nacimiento,
-            sede_id=sede.codigo_dane
+            estado=estado,
             )
-        elif tipo == 'padre':
-            Padre.objects.create(
+        elif tipo == 'rector':
+            perfil_args['sexo'] = sexo
+            Rector.objects.create(
             usuario=usuario,
+            tipo_documento=tipo_documento,
+            numero_documento=documento,
             nombres=nombres,
             apellidos=apellidos,
-            correo=user.email,
+            sexo=sexo,
             telefono=telefono,
+            correo=user.email,
             direccion=direccion,
+            fecha_nacimiento=fecha_nacimiento,
+            sede_id=sede.codigo_dane,
+            estado=estado,
             )
 
         return usuario
@@ -293,15 +306,31 @@ class EstudianteAsignaturaCursoGradoSerializer(serializers.ModelSerializer):
         estudiantes = Estudiante.objects.filter(grupo_id=grupo_id)
         serializer = EstudianteSerializer(estudiantes, many=True)
         return Response(serializer.data)
-    
-
-    
+      
 class SedeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sede
-        fields = ['codigo_dane', 'nombre']    
-        
-        
+        fields = ['codigo_dane', 'nombre']           
+
+class RectorPerfilSerializer(serializers.ModelSerializer):
+    tipo_usr = serializers.CharField(source='usuario.tipo_usr')
+    username = serializers.CharField(source='usuario.user.username')
+    email = serializers.EmailField(source='correo')
+
+    class Meta:
+        model = Rector
+        fields = [
+            'username',
+            'tipo_usr',
+            'nombres',
+            'apellidos',
+            'email',
+            'telefono',
+            'direccion',
+            'fecha_nacimiento',
+            'sexo'
+        ]
+
 class EstudiantePerfilSerializer(serializers.ModelSerializer):
     tipo_usr = serializers.CharField(source='usuario.tipo_usr')
     username = serializers.CharField(source='usuario.user.username')
@@ -358,33 +387,13 @@ class CoordinadorPerfilSerializer(serializers.ModelSerializer):
             'direccion',
             'fecha_nacimiento',
             'sexo'
-        ]
-
-class PadrePerfilSerializer(serializers.ModelSerializer):
-    tipo_usr = serializers.CharField(source='usuario.tipo_usr')
-    username = serializers.CharField(source='usuario.user.username')
-    email = serializers.EmailField(source='correo')
-
-    class Meta:
-        model = Padre
-        fields = [
-            'username',
-            'tipo_usr',
-            'nombres',
-            'apellidos',
-            'email',
-            'telefono',
-            'direccion'
-        ]
-        
+        ]       
         
 class EvaluacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluacion
         fields = ['id', 'nombre', 'tipo', 'fecha', 'asignatura', 'grupo']
-        
-        
-        
+              
 class CalificacionSerializer(serializers.ModelSerializer):
     nombre_estudiante = serializers.SerializerMethodField()
 
@@ -438,5 +447,4 @@ class AsignaturaDocenteGrupoExpandidoSerializer(serializers.ModelSerializer):
         model = AsignaturaDocenteGrupo
         fields = ['id', 'asignatura', 'grupo']
         
-        
-        
+    
