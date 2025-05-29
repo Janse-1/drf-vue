@@ -1,17 +1,23 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.utils.timezone import now
+from django.core.exceptions import MultipleObjectsReturned
 from rest_framework import viewsets, mixins, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from decimal import Decimal
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from .models import Docente, Estudiante, Grado, Grupo, Rector, Asignatura, Evaluacion, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado, Usuario, Sede, Coordinador, Calificacion
+from .models import (Docente, Estudiante, Grado, Grupo, Rector, Asignatura, Evaluacion, AsignaturaDocenteGrupo, 
+                     EstudianteAsignaturaCursoGrado, Usuario, Sede, Coordinador, Calificacion, PeriodoAcademico,
+                     NotaFinal
+                     )
 from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer,
                           AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer,
                           UsuarioRegistroSerializer, SedeSerializer, EstudiantePerfilSerializer, DocentePerfilSerializer,
                           CoordinadorPerfilSerializer,  EvaluacionSerializer, CalificacionSerializer,
-                          NotaFinalEstudianteSerializer, AsignaturaDocenteGrupoExpandidoSerializer, RectorPerfilSerializer
+                          NotaFinalSerializer, AsignaturaDocenteGrupoExpandidoSerializer, RectorPerfilSerializer,
+                          PeriodoAcademicoSerializer
                           )
 
 
@@ -245,71 +251,19 @@ class CalificacionCreateAPIView(APIView):
         return Response(serializer.data)
     
     
-class NotaFinalEstudianteAPIView(APIView):
+
+class NotaFinalViewSet(viewsets.ModelViewSet):
+    queryset = NotaFinal.objects.all()
+    serializer_class = NotaFinalSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        estudiante_id = request.query_params.get('estudiante')
-        asignatura_id = request.query_params.get('asignatura')
-        grupo_id = request.query_params.get('grupo')
-
-        estudiante = get_object_or_404(Estudiante, id=estudiante_id)
-        grupo = get_object_or_404(Grupo, id=grupo_id)
-        asignatura = get_object_or_404(Asignatura, id=asignatura_id)
-
-        if estudiante.grupo.id != grupo.id:
-            return Response({'detail': 'El estudiante no pertenece al grupo indicado.'}, status=400)
-
-        # Obtener evaluaciones de esta asignatura en el grupo
-        evaluaciones = Evaluacion.objects.filter(grupo=grupo, asignatura=asignatura)
-
-        actividades = []
-        examenes = []
-        asistencia = 0
-        disciplina = 0
-
-        for evaluacion in evaluaciones:
-            calificacion = Calificacion.objects.filter(evaluacion=evaluacion, estudiante=estudiante).first()
-            if not calificacion:
-                continue
-
-            if evaluacion.tipo == 'actividad':
-                actividades.append(calificacion.nota)
-            elif evaluacion.tipo == 'examen_final':
-                examenes.append(calificacion.nota)
-            elif evaluacion.tipo == 'asistencia':
-                asistencia = calificacion.nota
-            elif evaluacion.tipo == 'disciplina':
-                disciplina = calificacion.nota
-
-        def promedio(lista):
-            return sum(lista) / len(lista) if lista else 0
-
-        nota_actividad = promedio(actividades)
-        nota_examen = promedio(examenes)
-        nota_asistencia = asistencia
-        nota_disciplina = disciplina
-
-        nota_final = (
-            Decimal(nota_actividad) * Decimal('0.6') +
-            Decimal(nota_examen) * Decimal('0.2') +
-            Decimal(nota_asistencia) * Decimal('0.1') +
-            Decimal(nota_disciplina) * Decimal('0.1')
-        )
-
-        data = {
-            'estudiante': f"{estudiante.nombres} {estudiante.apellidos}",
-            'grupo': grupo.nombre,
-            'asignatura': asignatura.nombre,
-            'actividades': actividades,
-            'examenes_finales': examenes,
-            'asistencia': nota_asistencia,
-            'disciplina': nota_disciplina,
-            'nota_final': round(nota_final, 2)
-        }
-
-        serializer = NotaFinalEstudianteSerializer(data)
-        return Response(serializer.data)
+    @action(detail=False, methods=['post'], url_path='bulk_create')
+    def bulk_create(self, request):
+        serializer = self.get_serializer(data=request.data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"mensaje": "Notas guardadas exitosamente"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AsignaturasGruposDocenteAPIView(APIView):
@@ -321,7 +275,8 @@ class AsignaturasGruposDocenteAPIView(APIView):
             return Response({'detail': 'No autorizado como docente'}, status=403)
 
         asignaciones = AsignaturaDocenteGrupo.objects.filter(docente=docente).select_related('asignatura', 'grupo')
-        serializer = AsignaturaDocenteGrupoExpandidoSerializer(asignaciones, many=True)
+        serializer = AsignaturaDocenteGrupoExpandidoSerializer(asignaciones, many=True, context={'request': request})
+
         return Response(serializer.data)
     
 
@@ -393,3 +348,20 @@ def obtener_sede_coordinador(request):
     }
     return Response(data)
 
+
+class PeriodoAcademicoActualView(APIView):
+    permission_classes = [IsAuthenticated]  
+
+    def get(self, request):
+        fecha_actual = now().date()
+        try:
+            periodo = PeriodoAcademico.objects.get(
+                fecha_inicio__lte=fecha_actual,
+                fecha_fin__gte=fecha_actual
+            )
+            serializer = PeriodoAcademicoSerializer(periodo)
+            return Response(serializer.data)
+        except PeriodoAcademico.DoesNotExist:
+            return Response({"detail": "No hay un periodo académico activo."}, status=404)
+        except MultipleObjectsReturned:
+            return Response({"detail": "Hay más de un periodo activo. Corrige los datos."}, status=500)

@@ -9,5 +9,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <style scoped>
-
+body {
+  font-family: 'Inter', 'Roboto', sans-serif; 
+}
 </style>

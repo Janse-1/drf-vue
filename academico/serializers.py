@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
 from djoser.serializers import UserSerializer
-from .models import Usuario, Coordinador, User, Sede, Evaluacion, Calificacion, Rector
+from .models import Usuario, Coordinador, User, Sede, Evaluacion, Calificacion, Rector, PeriodoAcademico, NotaFinal
 from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
 
 #Aqui retorna datos GET
@@ -15,7 +16,9 @@ class UsuarioConTipoSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'tipo_usr')
 
     def get_tipo_usr(self, obj):
-        return obj.usuario.tipo_usr if hasattr(obj, 'usuario') else None
+     if hasattr(obj, 'usuario') and obj.usuario:
+        return obj.usuario.tipo_usr
+     return None
 
 
 
@@ -86,6 +89,10 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
             raise ValidationError({'estado': 'Estado inválido para estudiante.'})
 
         return attrs
+    
+    def validate_password(self, value):
+        validate_password(value)
+        return value
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')  # ← Aquí vienen username, email, etc.
@@ -418,15 +425,10 @@ class CalificacionSerializer(serializers.ModelSerializer):
 
 
 
-class NotaFinalEstudianteSerializer(serializers.Serializer):
-    estudiante = serializers.CharField()
-    grupo = serializers.CharField()
-    asignatura = serializers.CharField()
-    actividades = serializers.ListField(child=serializers.FloatField())
-    examenes_finales = serializers.ListField(child=serializers.FloatField())
-    asistencia = serializers.FloatField()
-    disciplina = serializers.FloatField()
-    nota_final = serializers.FloatField()
+class NotaFinalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotaFinal
+        fields = '__all__'
     
 
 class GrupoSerializerMini(serializers.ModelSerializer):
@@ -442,9 +444,55 @@ class AsignaturaSerializerMini(serializers.ModelSerializer):
 class AsignaturaDocenteGrupoExpandidoSerializer(serializers.ModelSerializer):
     asignatura = AsignaturaSerializerMini(read_only=True)
     grupo = GrupoSerializerMini(read_only=True)
+    estudiantes = serializers.SerializerMethodField()
 
     class Meta:
         model = AsignaturaDocenteGrupo
-        fields = ['id', 'asignatura', 'grupo']
-        
+        fields = ['id', 'asignatura', 'grupo', 'estudiantes']
+
+    def get_estudiantes(self, obj):
+        request = self.context.get('request')
+        periodo_id = request.query_params.get('periodo')
+
+        estudiantes = obj.grupo.estudiantes.all()
+
+        # Filtro ajustado con periodo
+        notas = NotaFinal.objects.filter(
+            asignatura=obj.asignatura,
+            grupo=obj.grupo,
+            periodo_id=periodo_id
+        ).select_related('estudiante')
+
+        notas_dict = {
+            nota.estudiante_id: nota.nota_final for nota in notas
+        }
+
+        data = []
+        for est in estudiantes:
+            data.append({
+                'id': est.id,
+                'nombres': est.nombres,
+                'apellidos': est.apellidos,
+                'nota': notas_dict.get(est.id),
+            })
+        return EstudianteNotaSerializer(data, many=True).data
+
+
+class EstudianteNotaSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    nombres = serializers.CharField()
+    apellidos = serializers.CharField()
+    nota = serializers.DecimalField(max_digits=4, decimal_places=2, required=False, allow_null=True)
+    editable = serializers.SerializerMethodField()
+
+    def get_editable(self, obj):
+        # Solo puede editar si la nota está vacía
+        return obj.get('nota') is None
+  
+  
+class PeriodoAcademicoSerializer(serializers.ModelSerializer):
+    anio = serializers.IntegerField(source='anio.anio')
+    class Meta:
+        model = PeriodoAcademico
+        fields = ['id', 'nombre', 'representacion', 'anio', 'fecha_inicio', 'fecha_fin', 'activo']      
     

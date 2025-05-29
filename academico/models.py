@@ -138,7 +138,7 @@ class Estudiante(models.Model):
     direccion = models.CharField(max_length=200)
     fecha_nacimiento = models.DateField()
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES)
-    grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True)
+    grupo = models.ForeignKey(Grupo, on_delete=models.SET_NULL, null=True, related_name="estudiantes")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

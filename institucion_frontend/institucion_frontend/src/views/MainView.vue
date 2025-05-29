@@ -42,6 +42,15 @@
           <a href="#" @click="mostrarVista = 'subirEvaluacion'"><i class="fa-solid fa-upload"></i> Subir notas</a>
           <a href="#" @click="mostrarVista = 'verEstudiantes'"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
           <a href="#" @click="mostrarVista = 'registrar'"><i class="fa-solid fa-user-plus"></i> Registrar</a>
+          <a href="#"><i class="fa-solid fa-school"></i> Mi sede</a>
+          <a href="#"><i class="fa-solid fa-school"></i> Boletines</a>
+        </template>
+
+        <template v-else-if="user.tipo_usr === 'rector'">
+          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click="mostrarVista = 'subirEvaluacion'"><i class="fa-solid fa-upload"></i> Subir notas</a>
+          <a href="#" @click="mostrarVista = 'verEstudiantes'"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
+          <a href="#" @click="mostrarVista = 'registrar'"><i class="fa-solid fa-user-plus"></i> Registrar</a>
           <a href="#"><i class="fa-solid fa-school"></i> Gestión de sedes</a>
           <a href="#"><i class="fa-solid fa-school"></i> Boletines</a>
         </template>
