@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
 from djoser.serializers import UserSerializer
-from .models import Usuario, Coordinador, User, Sede, Evaluacion, Calificacion, Rector, PeriodoAcademico, NotaFinal
+from .models import Usuario, Coordinador, User, Sede, Evaluacion, Calificacion, Rector, PeriodoAcademico, NotaFinal, CoordinadorSede
 from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
 
 #Aqui retorna datos GET
@@ -358,10 +358,16 @@ class EstudiantePerfilSerializer(serializers.ModelSerializer):
             'estado',
         ]
 
+class SedeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sede
+        fields = ['codigo_dane', 'nombre', 'direccion']
+
 class DocentePerfilSerializer(serializers.ModelSerializer):
     tipo_usr = serializers.CharField(source='usuario.tipo_usr')
     username = serializers.CharField(source='usuario.user.username')
     email = serializers.EmailField(source='correo')
+    sedes = serializers.SerializerMethodField()
 
     class Meta:
         model = Docente
@@ -374,8 +380,32 @@ class DocentePerfilSerializer(serializers.ModelSerializer):
             'telefono',
             'direccion',
             'fecha_nacimiento',
-            'estado'
+            'estado',
+            'sedes'
         ]
+
+    def get_sedes(self, obj):
+        sedes = Sede.objects.filter(docentesede__docente=obj).distinct()
+        resultado = []
+
+        for sede in sedes:
+            # Intentar obtener el coordinador de la sede
+            coordinador_sede = CoordinadorSede.objects.filter(sede=sede).select_related('coordinador').first()
+            if coordinador_sede:
+                coordinador = coordinador_sede.coordinador
+                coordinador_info = {
+                    'nombre_completo': f"{coordinador.nombres} {coordinador.apellidos}",
+                    'correo': coordinador.correo
+                }
+            else:
+                coordinador_info = None
+
+            resultado.append({
+                'nombre_sede': sede.nombre,
+                'coordinador': coordinador_info
+            })
+
+        return resultado
 
 class CoordinadorPerfilSerializer(serializers.ModelSerializer):
     tipo_usr = serializers.CharField(source='usuario.tipo_usr')
