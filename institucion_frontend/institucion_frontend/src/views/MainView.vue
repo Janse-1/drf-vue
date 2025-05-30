@@ -22,18 +22,33 @@
     <div class="contenido-total">
       <aside class="menu-lateral" v-if="user">
         
-        <!-- Estudiante y Padre -->
-        <template v-if="user.tipo_usr === 'estudiante' || user.tipo_usr === 'padre'">
-          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
+        <!-- Estudiante  -->
+        <template v-if="user.tipo_usr === 'estudiante'">
+          <a href="#" 
+            @click.prevent="mostrarVista = 'perfil'" 
+            :class="{ activo: mostrarVista === 'perfil' }">
+            <i class="fa-solid fa-user"></i> Mi perfil
+          </a>
           <a href="#" @click="mostrarVista"><i class="fa-solid fa-book"></i> Mis notas</a>
         </template>
 
         <!-- Docente -->
         <template v-else-if="user.tipo_usr === 'docente'">
-          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
-          <a href="#" @click="mostrarVista = 'subirEvaluacion'"><i class="fa-solid fa-upload"></i> Subir notas</a>
-          <a href="#" @click="mostrarVista = 'verEstudiantes'"><i class="fa-solid fa-users"></i>  Ver a Estudiantes</a>
-          <a href="#"><i class="fa-solid fa-chalkboard"></i> Mis cursos</a>
+           <a href="#" 
+            @click.prevent="mostrarVista = 'perfil'" 
+            :class="{ activo: mostrarVista === 'perfil' }">
+            <i class="fa-solid fa-user"></i> Mi perfil
+          </a>
+          <a href="#" 
+            @click.prevent="mostrarVista = 'subirEvaluacion'" 
+            :class="{ activo: mostrarVista === 'subirEvaluacion' }">
+            <i class="fa-solid fa-upload"></i> Subir notas
+          </a>
+          <a href="#" 
+            @click.prevent="mostrarVista = 'verEstudiantes'" 
+            :class="{ activo: mostrarVista === 'verEstudiantes' }">
+            <i class="fa-solid fa-users"></i> Ver a Estudiantes
+          </a>
         </template>
 
         <!-- Coordinador o Admin -->
@@ -78,8 +93,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import FooterComponent from '@/components/FooterComponent.vue'
 import MiPerfil from '@/components/MiPerfil.vue';
-import SubirEvaluaciones from '@/components/SubirEvaluaciones.vue';
-import VerEstudiantes from '@/components/VerEstudiantes.vue';
+import SubirEvaluaciones from '@/components/docentes/SubirEvaluaciones.vue';
+import VerEstudiantes from '@/components/docentes/VerEstudiantes.vue';
 import RegistroView from './RegistroView.vue';
 
 const mostrarVista = ref(null);
@@ -193,6 +208,12 @@ onMounted(async () => {
   padding: 6px 10px;
   font-size: 0.95rem;
   transition: background 0.2s;
+}
+.menu-lateral a.activo {
+  border-left: 4px solid #ffc107; 
+  background-color: #fff8dc;
+  color: #D72638; 
+  font-weight: bold;
 }
 
 .navbar-header a:hover,
