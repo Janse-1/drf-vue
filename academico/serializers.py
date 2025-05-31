@@ -256,6 +256,7 @@ class AsignaturaSerializer(serializers.ModelSerializer):
         
 
 class AsignaturaDocenteGrupoSerializer(serializers.ModelSerializer):
+    id_asignatura = AsignaturaSerializer(read_only=True)
     class Meta:
         model = AsignaturaDocenteGrupo
         fields = '__all__'
@@ -342,10 +343,14 @@ class EstudiantePerfilSerializer(serializers.ModelSerializer):
     tipo_usr = serializers.CharField(source='usuario.tipo_usr')
     username = serializers.CharField(source='usuario.user.username')
     email = serializers.EmailField(source='correo')
+    
+    grupo = serializers.SerializerMethodField()
+    grado = serializers.SerializerMethodField()
 
     class Meta:
         model = Estudiante
         fields = [
+            'id',
             'username',
             'tipo_usr',
             'nombres',
@@ -356,7 +361,27 @@ class EstudiantePerfilSerializer(serializers.ModelSerializer):
             'fecha_nacimiento',
             'sexo',
             'estado',
+            'grado',
+            'grupo',
         ]
+
+    def get_grupo(self, obj):
+        if obj.grupo:
+            return {
+                "id": obj.grupo.id,
+                "nombre": obj.grupo.nombre,
+                "grado": obj.grupo.grado.nombre if obj.grupo.grado else None,
+                "director": {
+                    "nombre_completo": f"{obj.grupo.director.nombres} {obj.grupo.director.apellidos}"
+                } if obj.grupo.director else None
+            }
+        return None
+    def get_grado(self, obj):
+        if obj.grupo and obj.grupo.grado:
+            return obj.grupo.grado.nombre
+        return None
+
+ 
 
 class SedeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -456,6 +481,7 @@ class CalificacionSerializer(serializers.ModelSerializer):
 
 
 class NotaFinalSerializer(serializers.ModelSerializer):
+    periodo_nombre = serializers.CharField(source='periodo.nombre', read_only=True)
     class Meta:
         model = NotaFinal
         fields = '__all__'

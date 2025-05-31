@@ -29,7 +29,9 @@
             :class="{ activo: mostrarVista === 'perfil' }">
             <i class="fa-solid fa-user"></i> Mi perfil
           </a>
-          <a href="#" @click="mostrarVista"><i class="fa-solid fa-book"></i> Mis notas</a>
+          <a href="#"
+            @click="mostrarVista = 'misNotas'"
+            :class="{ activo: mostrarVista === 'misNotas'}"><i class="fa-solid fa-book"></i> Mis notas</a>
         </template>
 
         <!-- Docente -->
@@ -76,6 +78,7 @@
 
       <main class="seccion-dinamica">
         <MiPerfil v-if="mostrarVista=== 'perfil'" />
+        <verNotas v-if="mostrarVista === 'misNotas'" />
         <SubirEvaluaciones v-if="mostrarVista === 'subirEvaluacion'" />
         <VerEstudiantes v-if="mostrarVista === 'verEstudiantes'" />
         <RegistroView v-if="mostrarVista === 'registrar'" />
@@ -96,6 +99,7 @@ import MiPerfil from '@/components/MiPerfil.vue';
 import SubirEvaluaciones from '@/components/docentes/SubirEvaluaciones.vue';
 import VerEstudiantes from '@/components/docentes/VerEstudiantes.vue';
 import RegistroView from './RegistroView.vue';
+import verNotas from '@/components/estudiantes/verNotas.vue';
 
 const mostrarVista = ref(null);
 

@@ -44,6 +44,19 @@ class AsignaturaViewSet(viewsets.ModelViewSet):
 class AsignaturaDocenteGrupoViewSet(viewsets.ModelViewSet):
     queryset = AsignaturaDocenteGrupo.objects.all()
     serializer_class = AsignaturaDocenteGrupoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['id_grupo', 'id_docente', 'asignatura']
+
+    @action(detail=False, methods=['get'], url_path='asignaturas-por-grupo')
+    def asignaturas_por_grupo(self, request):
+        grupo_id = request.query_params.get('grupo')
+        if not grupo_id:
+            return Response({"error": "Debe enviar el ID del grupo"}, status=400)
+        
+        relaciones = self.queryset.filter(grupo_id=grupo_id).select_related('asignatura')
+        asignaturas = [rel.asignatura for rel in relaciones]
+        data = AsignaturaSerializer(asignaturas, many=True).data
+        return Response(data)
     
 class EstudianteAsignaturaCursoGradoViewSet(viewsets.ModelViewSet):
     queryset = EstudianteAsignaturaCursoGrado.objects.all()
@@ -55,13 +68,10 @@ class RegistroUsuarioView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioRegistroSerializer
     
-    
 class SedeListView(viewsets.ModelViewSet):
     queryset = Sede.objects.all()
     serializer_class = SedeSerializer
-    
-    
-    
+     
 class PerfilDetalladoAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -106,8 +116,7 @@ class PerfilDetalladoAPIView(APIView):
         else:
             return Response({"detail": "Tipo de usuario no válido"}, status=400)
 
-        return Response(serializer.data)
-    
+        return Response(serializer.data) 
     
 class EvaluacionesDocenteAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -171,7 +180,6 @@ class EvaluacionesDocenteAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         
-
 class CalificacionCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -249,13 +257,13 @@ class CalificacionCreateAPIView(APIView):
         calificaciones = Calificacion.objects.select_related('estudiante').filter(evaluacion=evaluacion)
         serializer = CalificacionSerializer(calificaciones, many=True)
         return Response(serializer.data)
-    
-    
-
+        
 class NotaFinalViewSet(viewsets.ModelViewSet):
     queryset = NotaFinal.objects.all()
     serializer_class = NotaFinalSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['estudiante', 'grupo', 'asignatura', 'periodo']
 
     @action(detail=False, methods=['post'], url_path='bulk_create')
     def bulk_create(self, request):
