@@ -56,8 +56,3 @@ Edita el archivo `settings.py` con tus credenciales de base de datos:
 
 ### 🛠 Estado del proyecto
 >Proyecto en fase inicial, se está integrando la lógica del backend con el frontend.
-
-### ✅ Buenas prácticas
-
-- Commits limpios y con mensajes descriptivos.
-- Uso de ramas para desarrollo de nuevas funcionalidades del backend y frontend.
