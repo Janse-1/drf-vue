@@ -57,6 +57,13 @@ const isContactoView = route.path === '/ContactoView'
   color: white;
   padding: 1rem 2rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  /* Imagen de fondo con superposición de color institucional */
+  background-image:
+    linear-gradient(rgba(215,38,56,0.92), rgba(215,38,56,0.92)),
+    url('../assets/images/fondo-header.png');
+  background-size: 100% 100%; /* Ajusta la imagen para que ocupe todo el ancho y alto del header */
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .header-container {

@@ -4,7 +4,6 @@
 
     <main class="main-content">
       <section class="hero">
-        <img src="@/assets/images/wayuu-bg.jpg" alt="Wayuu cultura" class="hero-image" />
         <div class="hero-text">
           <h1>Bienvenido al Sistema Académico</h1>
           <p>Una plataforma para facilitar la gestión de notas, boletines y el seguimiento académico de los estudiantes Wayuu.</p>
@@ -41,6 +40,10 @@ import HeaderPublic from '@/components/HeaderPublic.vue';
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Fondo con imagen sutil y superposición */
+  background: 
+    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+    url('../assets/images/fondooo.png') center/cover no-repeat;
 }
 
 .main-content {
