@@ -1,6 +1,6 @@
 <template>
 <HeaderPublic />
-
+ <div class="login-container">
   <div class="login-box">
     <img src="@/assets/images/logo.png" alt="Logo IEI Wayuu" />
     <div class="decor-box">
@@ -33,11 +33,12 @@
       <p v-if="error" style="color: red; font-weight: bold;">{{ error }}</p>
 
       <button type="submit" class="button">INGRESAR</button>
-      <a class="forgot-password" href="#">¿Olvidaste tu contraseña?</a>
+      <!-- <a class="forgot-password" href="#">¿Olvidaste tu contraseña?</a> -->
     </form>
   </div>
 
   <FooterComponent />
+</div>
 </template>
 
 <script setup>
@@ -110,7 +111,16 @@ body {
   padding: 0;
   background-color: white;
 }
-
+.login-container {
+  min-height: 100vh;
+  background: 
+    linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)),
+    url('@/assets/images/fondooo.png') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 .login-box {
   background: white;
   padding: 40px;
@@ -123,6 +133,11 @@ body {
   overflow: hidden;
   transform: scale(1.05);
   text-align: center;
+}
+.login-box:hover {
+  transform: scale(1.07);
+  transition: transform 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .login-box img {

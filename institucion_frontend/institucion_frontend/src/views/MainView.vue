@@ -9,9 +9,9 @@
 
 
       <nav class="navbar-header">
-        <a href="#"><i class="fa-solid fa-house"></i> Inicio</a>
+        <a href="/"><i class="fa-solid fa-house"></i> Inicio</a>
         <a href="#"><i class="fa-solid fa-newspaper"></i> Noticias</a>
-        <a href="#"><i class="fa-solid fa-envelope"></i> Contacto</a>
+        <a href="/ContactoView"><i class="fa-solid fa-envelope"></i> Contacto</a>
         <button @click="cerrarSesion" class="logout-header">
           <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
         </button>
