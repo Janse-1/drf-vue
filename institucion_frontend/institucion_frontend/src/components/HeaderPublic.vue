@@ -7,19 +7,16 @@
       </div>
 
       <nav class="navbar">
-        <a href="/" title="Inicio">
+        <a v-if="!isHomeView" href="/" title="Inicio">
           <i class="fa-solid fa-house"></i> Inicio
         </a>
-        <a href="#" title="¿Quiénes somos?">
+        <a  href="#" title="¿Quiénes somos?">
           <i class="fa-solid fa-users"></i> Quiénes somos
         </a>
-        <a href="#" title="Noticias">
+        <a  href="#" title="Noticias">
           <i class="fa-solid fa-newspaper"></i> Noticias
         </a>
-        <a href="#" title="Docentes">
-          <i class="fa-solid fa-chalkboard-teacher"></i> Docentes
-        </a>
-        <a href="#" title="Contacto">
+        <a v-if="!isContactoView" href="ContactoView" title="Contacto">
           <i class="fa-solid fa-envelope"></i> Contacto
         </a>
         <a v-if="!isLoginView" href="/LoginView" title="Iniciar sesión">
@@ -36,6 +33,10 @@ const route = useRoute()
 
 // Ocultar "Iniciar sesión" si ya estás en la vista Login
 const isLoginView = route.path === '/LoginView'
+const isHomeView = route.path === '/HomeView'
+const isQuienesSomos = route.path === '/QuienesSomosView'
+const isNoticiasView = route.path === '/NoticiasView'
+const isContactoView = route.path === '/ContactoView'
 </script>
 
 <style scoped>
