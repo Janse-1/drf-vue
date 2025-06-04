@@ -15,7 +15,7 @@
             <i class="fa-solid fa-users"></i> Quiénes somos <i class="fa-solid fa-caret-down"></i>
           </a>
           <div v-if="mostrarDropdown" class="dropdown-menu">
-            <a href="#" class="dropdown-item">Misión y Visión</a>
+            <a href="MvView" class="dropdown-item">Misión y Visión</a>
             <a href="#" class="dropdown-item">Símbolos</a>
             <a href="#" class="dropdown-item">Reportes</a>
           </div>

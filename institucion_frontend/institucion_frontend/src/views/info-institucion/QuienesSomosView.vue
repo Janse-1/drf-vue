@@ -34,7 +34,7 @@
         </div>
         <p>
           La Institución Educativa Indígena N°1 nació del sueño colectivo de líderes Wayúu y educadores comprometidos con el desarrollo de su pueblo. Desde sus inicios, la institución ha buscado ser un puente entre el conocimiento ancestral y la educación moderna, promoviendo el respeto, la identidad y la excelencia académica.<br><br>
-          A lo largo de los años, hemos crecido junto a la comunidad, adaptándonos a los cambios y desafíos, pero siempre manteniendo la esencia de nuestra misión y visión. <a href="#mision-vision" class="enlace-mision">Conoce nuestra misión y visión</a> para descubrir los valores que nos guían.
+          A lo largo de los años, hemos crecido junto a la comunidad, adaptándonos a los cambios y desafíos, pero siempre manteniendo la esencia de nuestra misión y visión. <a href="MvView" class="enlace-mision">Conoce nuestra misión y visión</a> para descubrir los valores que nos guían.
         </p>
       </div>
       <div class="historia-lateral">

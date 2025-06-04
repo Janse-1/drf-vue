@@ -5,6 +5,7 @@ import MainView from '@/views/MainView.vue'
 import RegistroView from '@/views/RegistroView.vue'
 import ContactoView from '@/views/info-institucion/ContactoView.vue'
 import QuienesSomosView from '@/views/info-institucion/QuienesSomosView.vue'
+import MisionVisionView from '@/views/info-institucion/MvView.vue'
 
 const routes = [
   { path: '/',
@@ -40,6 +41,12 @@ const routes = [
     path: '/QuienesSomosView',
     name: 'QuienesSomosView',
     component: QuienesSomosView
+   },
+
+   {
+    path: '/MvView',
+    name: 'MvView',
+    component: MisionVisionView
    },
 ]
 
