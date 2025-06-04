@@ -11,7 +11,7 @@
           <i class="fa-solid fa-house"></i> Inicio
         </a>
         <div class="dropdown" @mouseenter="mostrarDropdown = true" @mouseleave="mostrarDropdown = false">
-          <a href="#" title="¿Quiénes somos?" class="dropdown-toggle">
+          <a href="/QuienesSomosView" title="¿Quiénes somos?" class="dropdown-toggle">
             <i class="fa-solid fa-users"></i> Quiénes somos <i class="fa-solid fa-caret-down"></i>
           </a>
           <div v-if="mostrarDropdown" class="dropdown-menu">

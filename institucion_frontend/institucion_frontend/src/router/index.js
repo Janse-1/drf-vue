@@ -3,7 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import MainView from '@/views/MainView.vue'
 import RegistroView from '@/views/RegistroView.vue'
-import ContactoView from '@/views/ContactoView.vue'
+import ContactoView from '@/views/info-institucion/ContactoView.vue'
+import QuienesSomosView from '@/views/info-institucion/QuienesSomosView.vue'
 
 const routes = [
   { path: '/',
@@ -33,6 +34,12 @@ const routes = [
     path: '/ContactoView',
     name: 'ContactoView',
     component: ContactoView
+   },
+
+   {
+    path: '/QuienesSomosView',
+    name: 'QuienesSomosView',
+    component: QuienesSomosView
    },
 ]
 
