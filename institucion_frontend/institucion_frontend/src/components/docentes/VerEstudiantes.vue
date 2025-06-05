@@ -29,7 +29,10 @@
       <button @click="toggleGrupo(index)" class="btn-grupo">
         {{ grupo.asignatura.nombre }} - Grupo: {{ grupo.grupo.nombre }}
       </button>
-
+      <div v-if="grupo.abierto" class="export-buttons">
+        <button @click="exportarPDF(grupo)" class="btn-pdf">Exportar PDF</button>
+        <button @click="exportarExcel(grupo)" class="btn-excel">Exportar Excel</button>
+      </div>
       <div v-if="grupo.abierto">
         <div class="tabla-estudiantes-wrapper">
           <h3>Estudiantes del grupo</h3>
@@ -58,10 +61,14 @@
 </template>
 
 <script setup>
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import * as XLSX from 'xlsx'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+import escudo from '@/assets/images/logo.png'
 
 const asignaturasGrupos = ref([])
 const docente = ref({})
@@ -142,6 +149,68 @@ onMounted(() => {
   cargarDatosDocente()
   cargarAsignaciones()
 })
+
+
+const exportarPDF = (grupo) => {
+  const doc = new jsPDF()
+
+  doc.addImage(escudo, 'PNG', 15, 10, 25, 25)
+  // Estilo institucional
+  doc.setFontSize(16)
+  doc.text('INSTITUCIÓN EDUCATIVA INDÍGENA N°1', 105, 20, { align: 'center' })
+  doc.setFontSize(12)
+  doc.text(`Listado de Estudiantes - ${grupo.asignatura.nombre}`, 105, 30, { align: 'center' })
+  doc.text(`Grupo: ${grupo.grupo.nombre}`, 105, 38, { align: 'center' })
+  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 50)
+  doc.text('Marque las asistencias en los campos A1 a A10', 14, 54)
+
+  // Encabezados de la tabla: datos + 10 columnas de asistencia
+  const asistenciaHeaders = Array.from({ length: 10 }, (_, i) => `A${i + 1}`)
+  const tableHead = [['#', 'Apellidos', 'Nombres', 'Correo', ...asistenciaHeaders]]
+
+  // Filas: datos + 10 celdas vacías
+  const rows = grupo.estudiantes.map((est, i) => [
+    i + 1,
+    est.apellidos,
+    est.nombres,
+    est.correo,
+    ...Array(10).fill('')
+  ])
+
+  autoTable(doc, {
+    head: tableHead,
+    body: rows,
+    startY: 55,
+    margin: { left: 14, right: 14 },
+    styles: {
+      fontSize: 10
+    }
+  })
+
+  // Abrir en nueva pestaña
+  const pdfBlob = doc.output('blob')
+  const blobUrl = URL.createObjectURL(pdfBlob)
+  window.open(blobUrl)
+}
+
+
+
+const exportarExcel = (grupo) => {
+  const data = grupo.estudiantes.map((est, i) => ({
+    '#': i + 1,
+    Apellidos: est.apellidos,
+    Nombres: est.nombres,
+    Correo: est.correo
+  }))
+
+  const worksheet = XLSX.utils.json_to_sheet(data)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Estudiantes')
+
+  const nombreArchivo = `estudiantes_${grupo.grupo.nombre}_${grupo.asignatura.nombre}.xlsx`
+  XLSX.writeFile(workbook, nombreArchivo)
+}
+
 </script>
 
 <style scoped>
@@ -265,6 +334,32 @@ onMounted(() => {
   background-color: #fff3da;
 }
 
+.export-buttons {
+  margin-top: 10px;
+}
+.btn-pdf {
+  background-color: #f54646;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+.btn-excel {
+  background-color: #008000;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 10px;
+} 
+.btn-pdf:hover, .btn-excel:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  background-color: #FFBA08;
+}
 @media (max-width: 600px) {
   .tabla-estudiantes th, .tabla-estudiantes td {
     padding: 8px 6px;
