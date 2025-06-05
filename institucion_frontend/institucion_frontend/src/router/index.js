@@ -6,6 +6,7 @@ import RegistroView from '@/views/RegistroView.vue'
 import ContactoView from '@/views/info-institucion/ContactoView.vue'
 import QuienesSomosView from '@/views/info-institucion/QuienesSomosView.vue'
 import MisionVisionView from '@/views/info-institucion/MvView.vue'
+import SimbolosView from '@/views/info-institucion/SimbolosView.vue'
 
 const routes = [
   { path: '/',
@@ -48,7 +49,14 @@ const routes = [
     name: 'MvView',
     component: MisionVisionView
    },
+
+   {
+    path: '/SimbolosView',
+    name: 'SimbolosView',
+    component: SimbolosView
+   },
 ]
+
 
 const router = createRouter({
   history: createWebHistory(),

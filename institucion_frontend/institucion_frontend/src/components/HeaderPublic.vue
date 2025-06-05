@@ -16,7 +16,7 @@
           </a>
           <div v-if="mostrarDropdown" class="dropdown-menu">
             <a href="MvView" class="dropdown-item">Misión y Visión</a>
-            <a href="#" class="dropdown-item">Símbolos</a>
+            <a href="SimbolosView" class="dropdown-item">Símbolos</a>
             <a href="#" class="dropdown-item">Reportes</a>
           </div>
         </div>
