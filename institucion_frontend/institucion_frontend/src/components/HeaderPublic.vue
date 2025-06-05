@@ -1,13 +1,13 @@
 <template>
   <header class="header-public">
     <div class="header-container">
-      <div class="logo-section">
+      <div class="logo-section" @click="$router.push('/')" style="cursor: pointer;">
         <img src="../assets/images/logo.png" alt="Logo IEI" class="logo" />
-        <span class="nombre-sistema">Gestión de notas IEN1 Indigena</span>
+        <span class="nombre-sistema">Institución Educativa Indigena N1 </span>
       </div>
 
       <nav class="navbar">
-        <a v-if="!isHomeView" href="/" title="Inicio">
+        <a v-if="!isHomeView" href="/" title="Inicio">  
           <i class="fa-solid fa-house"></i> Inicio
         </a>
         <div class="dropdown" @mouseenter="mostrarDropdown = true" @mouseleave="mostrarDropdown = false">
@@ -17,12 +17,11 @@
           <div v-if="mostrarDropdown" class="dropdown-menu">
             <a href="MvView" class="dropdown-item">Misión y Visión</a>
             <a href="SimbolosView" class="dropdown-item">Símbolos</a>
-            <a href="#" class="dropdown-item">Reportes</a>
           </div>
         </div>
-        <a href="#" title="Noticias">
+        <!-- <a href="#" title="Noticias">
           <i class="fa-solid fa-newspaper"></i> Noticias
-        </a>
+        </a> -->
         <a v-if="!isContactoView" href="ContactoView" title="Contacto">
           <i class="fa-solid fa-envelope"></i> Contacto
         </a>
