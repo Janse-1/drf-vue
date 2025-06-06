@@ -55,21 +55,19 @@
 
         <!-- Coordinador o Admin -->
         <template v-else-if="user.tipo_usr === 'coordinador' || user.tipo_usr === 'admin'">
-          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
-          <a href="#" @click="mostrarVista = 'subirEvaluacion'"><i class="fa-solid fa-upload"></i> Subir notas</a>
-          <a href="#" @click="mostrarVista = 'verEstudiantes'"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
-          <a href="#" @click="mostrarVista = 'registrar'"><i class="fa-solid fa-user-plus"></i> Registrar</a>
+          <a href="#" @click.prevent="mostrarVista = 'perfil'":class="{ activo: mostrarVista === 'perfil' }"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click.prevent="mostrarVista = 'subirEvaluacion'":class="{ activo: mostrarVista === 'subirEvaluacion'}"><i class="fa-solid fa-upload"></i> Subir notas</a>
+          <a href="#" @click.prevent="mostrarVista = 'verEstudiantes'":class="{ activo: mostrarVista === 'verEstudiantes' }"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
+          <a href="#" @click.prevent="mostrarVista = 'registrar'":class="{ activo: mostrarVista === 'registrar' }"><i class="fa-solid fa-user-plus"></i> Registrar</a>
           <a href="#"><i class="fa-solid fa-school"></i> Mi sede</a>
-          <a href="#"><i class="fa-solid fa-school"></i> Boletines</a>
         </template>
 
         <template v-else-if="user.tipo_usr === 'rector'">
-          <a href="#" @click="mostrarVista = 'perfil'"><i class="fa-solid fa-user"></i> Mi perfil</a>
-          <a href="#" @click="mostrarVista = 'subirEvaluacion'"><i class="fa-solid fa-upload"></i> Subir notas</a>
-          <a href="#" @click="mostrarVista = 'verEstudiantes'"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
-          <a href="#" @click="mostrarVista = 'registrar'"><i class="fa-solid fa-user-plus"></i> Registrar</a>
-          <a href="#"><i class="fa-solid fa-school"></i> Gestión de sedes</a>
-          <a href="#"><i class="fa-solid fa-school"></i> Boletines</a>
+          <a href="#" @click.prevent="mostrarVista = 'perfil'":class="{ activo: mostrarVista === 'perfil' }"><i class="fa-solid fa-user"></i> Mi perfil</a>
+          <a href="#" @click.prevent="mostrarVista = 'subirEvaluacion'":class="{ activo: mostrarVista === 'subirEvaluacion' }"><i class="fa-solid fa-upload"></i> Subir notas</a>
+          <a href="#" @click.prevent="mostrarVista = 'verEstudiantes'":class="{ activo: mostrarVista === 'verEstudiantes' }"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
+          <a href="#" @click.prevent="mostrarVista = 'registrar'":class="{ activo: mostrarVista === 'registrar' }"><i class="fa-solid fa-user-plus"></i> Registrar</a>
+          <a href="#" @click.prevent="mostrarVista = 'gestionSedes'":class="{ activo: mostrarVista === 'gestionSedes'}"><i class="fa-solid fa-school"></i> Gestión de sedes</a>
         </template>
 
         <hr>
@@ -82,6 +80,7 @@
         <SubirEvaluaciones v-if="mostrarVista === 'subirEvaluacion'" />
         <VerEstudiantes v-if="mostrarVista === 'verEstudiantes'" />
         <RegistroView v-if="mostrarVista === 'registrar'" />
+        <GestionSedes v-if="mostrarVista === 'gestionSedes'" />
 
       </main>
     </div>
@@ -100,6 +99,7 @@ import SubirEvaluaciones from '@/components/docentes/SubirEvaluaciones.vue';
 import VerEstudiantes from '@/components/docentes/VerEstudiantes.vue';
 import RegistroView from './RegistroView.vue';
 import verNotas from '@/components/estudiantes/verNotas.vue';
+import GestionSedes from '@/components/rector/GestionSedes.vue';
 
 const mostrarVista = ref(null);
 
