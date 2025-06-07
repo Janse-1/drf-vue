@@ -5,7 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
 from djoser.serializers import UserSerializer
 from .models import Usuario, Coordinador, User, Sede, Evaluacion, Calificacion, Rector, PeriodoAcademico, NotaFinal, CoordinadorSede
-from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado
+from .models import Docente, Estudiante, Grado, Grupo, Asignatura, AsignaturaDocenteGrupo, EstudianteAsignaturaCursoGrado, DocenteSede
 
 #Aqui retorna datos GET
 class UsuarioConTipoSerializer(serializers.ModelSerializer):
@@ -19,8 +19,6 @@ class UsuarioConTipoSerializer(serializers.ModelSerializer):
      if hasattr(obj, 'usuario') and obj.usuario:
         return obj.usuario.tipo_usr
      return None
-
-
 
 #Aquí para registrar usuarios POST
 class UsuarioRegistroSerializer(serializers.ModelSerializer):
@@ -214,9 +212,6 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
 
         return usuario
 
-
-
-
 class DocenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Docente
@@ -247,14 +242,11 @@ class GrupoSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Este grupo ya tiene un director asignado.")
         return data
 
-
 class AsignaturaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Asignatura
         fields = '__all__'
-        
-        
-
+            
 class AsignaturaDocenteGrupoSerializer(serializers.ModelSerializer):
     id_asignatura = AsignaturaSerializer(read_only=True)
     class Meta:
@@ -279,7 +271,6 @@ class AsignaturaDocenteGrupoSerializer(serializers.ModelSerializer):
             )
             
         return data
-
 
 class EstudianteAsignaturaCursoGradoSerializer(serializers.ModelSerializer):
     estudiante = EstudianteSerializer(read_only=True)
@@ -316,9 +307,34 @@ class EstudianteAsignaturaCursoGradoSerializer(serializers.ModelSerializer):
         return Response(serializer.data)
       
 class SedeSerializer(serializers.ModelSerializer):
+    codigo_dane = serializers.CharField(max_length=12)
+    nombre = serializers.CharField(max_length=100)
+    direccion = serializers.CharField(max_length=200)
+
     class Meta:
         model = Sede
-        fields = ['codigo_dane', 'nombre']           
+        fields = ['codigo_dane', 'nombre', 'direccion']
+
+    def validate_codigo_dane(self, value):
+        if not value.isdigit() or not (5 <= len(value) <= 12):
+            raise serializers.ValidationError('El código DANE debe ser numérico y de 5 a 12 dígitos.')
+        if Sede.objects.filter(codigo_dane=value).exists():
+            raise serializers.ValidationError('Ya existe una sede con este código DANE.')
+        return value
+
+    def validate_nombre(self, value):
+        if len(value.strip()) < 3:
+            raise serializers.ValidationError('El nombre debe tener al menos 3 caracteres.')
+        return value
+
+    def validate_direccion(self, value):
+        if len(value.strip()) < 5:
+            raise serializers.ValidationError('La dirección debe tener al menos 5 caracteres.')
+        return value
+
+    def create(self, validated_data):
+        return Sede.objects.create(**validated_data)
+    
 
 class RectorPerfilSerializer(serializers.ModelSerializer):
     tipo_usr = serializers.CharField(source='usuario.tipo_usr')
@@ -381,12 +397,6 @@ class EstudiantePerfilSerializer(serializers.ModelSerializer):
             return obj.grupo.grado.nombre
         return None
 
- 
-
-class SedeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sede
-        fields = ['codigo_dane', 'nombre', 'direccion']
 
 class DocentePerfilSerializer(serializers.ModelSerializer):
     tipo_usr = serializers.CharField(source='usuario.tipo_usr')
@@ -478,15 +488,12 @@ class CalificacionSerializer(serializers.ModelSerializer):
     def get_nombre_estudiante(self, obj):
         return f"{obj.estudiante.nombres} {obj.estudiante.apellidos}"
 
-
-
 class NotaFinalSerializer(serializers.ModelSerializer):
     periodo_nombre = serializers.CharField(source='periodo.nombre', read_only=True)
     class Meta:
         model = NotaFinal
         fields = '__all__'
     
-
 class GrupoSerializerMini(serializers.ModelSerializer):
     class Meta:
         model = Grupo
@@ -533,7 +540,6 @@ class AsignaturaDocenteGrupoExpandidoSerializer(serializers.ModelSerializer):
             })
         return EstudianteNotaSerializer(data, many=True).data
 
-
 class EstudianteNotaSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     nombres = serializers.CharField()
@@ -544,11 +550,39 @@ class EstudianteNotaSerializer(serializers.Serializer):
     def get_editable(self, obj):
         # Solo puede editar si la nota está vacía
         return obj.get('nota') is None
-  
-  
+    
 class PeriodoAcademicoSerializer(serializers.ModelSerializer):
     anio = serializers.IntegerField(source='anio.anio')
     class Meta:
         model = PeriodoAcademico
         fields = ['id', 'nombre', 'representacion', 'anio', 'fecha_inicio', 'fecha_fin', 'activo']      
-    
+ 
+ 
+class SedeResumenSerializer(serializers.ModelSerializer):
+    coordinador = serializers.SerializerMethodField()
+    docentes = serializers.SerializerMethodField()
+    grados = serializers.SerializerMethodField()
+    grupos = serializers.SerializerMethodField()
+    estudiantes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Sede
+        fields = ['codigo_dane', 'nombre', 'coordinador', 'docentes', 'grados', 'grupos', 'estudiantes']
+
+    def get_coordinador(self, obj):
+        relacion = CoordinadorSede.objects.filter(sede=obj).first()
+        if relacion and relacion.coordinador:
+            return f"{relacion.coordinador.nombres} {relacion.coordinador.apellidos}"
+        return "Sin asignar"
+
+    def get_docentes(self, obj):
+        return DocenteSede.objects.filter(sede=obj).count()
+
+    def get_grados(self, obj):
+        return Grado.objects.filter(sede=obj).count()
+
+    def get_grupos(self, obj):
+        return Grupo.objects.filter(grado__sede=obj).count()
+
+    def get_estudiantes(self, obj):
+        return Estudiante.objects.filter(grupo__grado__sede=obj).count()

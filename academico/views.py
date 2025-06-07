@@ -17,7 +17,7 @@ from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializ
                           UsuarioRegistroSerializer, SedeSerializer, EstudiantePerfilSerializer, DocentePerfilSerializer,
                           CoordinadorPerfilSerializer,  EvaluacionSerializer, CalificacionSerializer,
                           NotaFinalSerializer, AsignaturaDocenteGrupoExpandidoSerializer, RectorPerfilSerializer,
-                          PeriodoAcademicoSerializer
+                          PeriodoAcademicoSerializer, SedeResumenSerializer
                           )
 
 
@@ -71,6 +71,15 @@ class RegistroUsuarioView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 class SedeListView(viewsets.ModelViewSet):
     queryset = Sede.objects.all()
     serializer_class = SedeSerializer
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save()
      
 class PerfilDetalladoAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -373,3 +382,12 @@ class PeriodoAcademicoActualView(APIView):
             return Response({"detail": "No hay un periodo académico activo."}, status=404)
         except MultipleObjectsReturned:
             return Response({"detail": "Hay más de un periodo activo. Corrige los datos."}, status=500)
+        
+        
+class SedeResumenAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sedes = Sede.objects.all()
+        serializer = SedeResumenSerializer(sedes, many=True)
+        return Response(serializer.data)

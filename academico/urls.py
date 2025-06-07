@@ -4,7 +4,7 @@ from .views import (
     DocenteViewSet, EstudianteViewSet, GradoViewSet, GrupoViewSet, AsignaturaViewSet, 
     AsignaturaDocenteGrupoViewSet, EstudianteAsignaturaCursoGradoViewSet, RegistroUsuarioView,
     SedeListView, PerfilDetalladoAPIView, EvaluacionesDocenteAPIView, CalificacionCreateAPIView,
-    NotaFinalViewSet, AsignaturasGruposDocenteAPIView, PeriodoAcademicoActualView
+    NotaFinalViewSet, AsignaturasGruposDocenteAPIView, PeriodoAcademicoActualView, SedeResumenAPIView
 )
 
 router = DefaultRouter()
@@ -16,7 +16,7 @@ router.register(r'asignaturas', AsignaturaViewSet)
 router.register(r'asignatura-docente-grupo', AsignaturaDocenteGrupoViewSet)
 router.register(r'estudiante-asignatura-curso-grado', EstudianteAsignaturaCursoGradoViewSet)
 router.register(r'registro', RegistroUsuarioView, basename='registro-usuario')
-router.register(r'sedes', SedeListView)
+router.register(r'sedes', SedeListView, basename='sedes')
 router.register(r'notas-finales', NotaFinalViewSet, basename='notas-finales')
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
     path('docente/calificaciones/', CalificacionCreateAPIView.as_view(), name='calificaciones-create'),
     path('docente/asignaturas-grupos/', AsignaturasGruposDocenteAPIView.as_view(), name='asignaturas-grupos-docente'),
     path('periodo-actual/', PeriodoAcademicoActualView.as_view(), name='periodo-actual'),
+    path('resumen-sedes/', SedeResumenAPIView.as_view(), name='sede-resumen'),
 
 ]
 
