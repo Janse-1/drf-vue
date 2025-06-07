@@ -1,10 +1,16 @@
 <template>
   <div class="grid-container">
     <div class="sede-header">
-      <button class="btn-crear" @click="toggleForm">
-        <span v-if="!showForm">+ Crear nueva sede</span>
-        <span v-else>Cancelar</span>
-      </button>
+      <div class="header-actions">
+        <button class="btn-crear" @click="toggleForm">
+          <span v-if="!showForm">+ Crear nueva sede</span>
+          <span v-else>Cancelar</span>
+        </button>
+        <button class="btn-asignar" @click="toggleAsignar">
+          <span v-if="!showAsignar">Asignar coordinador a sede</span>
+          <span v-else>Cancelar</span>
+        </button>
+      </div>
       <transition name="slide-fade">
         <form v-if="showForm" class="form-sede" @submit.prevent="crearSede">
           <div class="form-group">
@@ -20,6 +26,29 @@
             <input v-model="form.direccion" id="direccion" required maxlength="200" />
           </div>
           <button class="btn-guardar" type="submit">Guardar</button>
+        </form>
+      </transition>
+      <transition name="slide-fade">
+        <form v-if="showAsignar" class="form-sede" @submit.prevent="asignarCoordinador">
+          <div class="form-group">
+            <label for="coordinador">Coordinador</label>
+            <select v-model="asignarForm.coordinador" id="coordinador" required>
+              <option value="" disabled>Seleccione un coordinador</option>
+              <option v-for="coord in coordinadoresDisponibles" :key="coord.id" :value="coord.id">
+                {{ coord.nombres }} {{ coord.apellidos }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sede">Sede</label>
+            <select v-model="asignarForm.sede" id="sede" required>
+              <option value="" disabled>Seleccione una sede</option>
+              <option v-for="sede in sedesDisponibles" :key="sede.codigo_dane" :value="sede.codigo_dane">
+                {{ sede.nombre }}
+              </option>
+            </select>
+          </div>
+          <button class="btn-guardar" type="submit">Asignar</button>
         </form>
       </transition>
     </div>
@@ -55,7 +84,11 @@ import 'vue3-toastify/dist/index.css'
 
 const sedes = ref([])
 const showForm = ref(false)
+const showAsignar = ref(false)
 const form = ref({ codigo_dane: '', nombre: '', direccion: '' })
+const asignarForm = ref({ coordinador: '', sede: '' })
+const coordinadoresDisponibles = ref([])
+const sedesDisponibles = ref([])
 
 const chartOptions = {
   chart: { type: 'radialBar' },
@@ -75,6 +108,30 @@ function toggleForm() {
   showForm.value = !showForm.value
   if (!showForm.value) {
     form.value = { codigo_dane: '', nombre: '', direccion: '' }
+  }
+}
+function toggleAsignar() {
+  showAsignar.value = !showAsignar.value
+  if (showAsignar.value) {
+    cargarCoordinadoresYSedes()
+  } else {
+    asignarForm.value = { coordinador: '', sede: '' }
+  }
+}
+
+async function cargarCoordinadoresYSedes() {
+  const token = localStorage.getItem('access_token')
+  try {
+    const resCoord = await axios.get('http://localhost:8000/api/coordinadores-disponibles/', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    coordinadoresDisponibles.value = resCoord.data
+    const resSede = await axios.get('http://localhost:8000/api/sedes-disponibles/', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    sedesDisponibles.value = resSede.data
+  } catch (err) {
+    toast.error('Error al cargar coordinadores o sedes disponibles.')
   }
 }
 
@@ -115,6 +172,29 @@ async function crearSede() {
     } else {
       toast.error('Error al crear la sede.')
     }
+  }
+}
+
+async function asignarCoordinador() {
+  if (!asignarForm.value.coordinador || !asignarForm.value.sede) {
+    toast.error('Debe seleccionar coordinador y sede.')
+    return
+  }
+  const token = localStorage.getItem('access_token')
+  try {
+    await axios.post('http://localhost:8000/api/asignar-coordinador-sede/', asignarForm.value, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    toast.success('Coordinador asignado correctamente.')
+    showAsignar.value = false
+    asignarForm.value = { coordinador: '', sede: '' }
+    // Recargar sedes
+    const res = await axios.get('http://localhost:8000/api/resumen-sedes/', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    sedes.value = res.data
+  } catch (err) {
+    toast.error('Error al asignar coordinador.')
   }
 }
 
@@ -186,8 +266,13 @@ onMounted(async () => {
   align-items: flex-start;
   margin-bottom: 1.5rem;
 }
-.btn-crear {
-  background: var(--primary-color);
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.btn-crear, .btn-asignar {
+  background: var(--primary-color, #2563eb);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -195,12 +280,25 @@ onMounted(async () => {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: 0.7rem;
   transition: background 0.2s;
 }
-.btn-crear:hover {
+.btn-crear:hover, .btn-asignar:hover {
   background: var(--secondary-color);
-
+}
+.btn-guardar {
+  background: var(--secondary-color);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.btn-guardar:hover {
+  background: #0ef119;
 }
 .form-sede {
   background: #f9fafb;
@@ -235,26 +333,11 @@ onMounted(async () => {
   margin-bottom: 0.3rem;
   display: block;
 }
-.form-group input {
+.form-group input, .form-group select {
   width: 100%;
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid #d1d5db;
   font-size: 1rem;
-}
-.btn-guardar {
-  background: var(--secondary-color);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1.2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: background 0.2s;
-}
-.btn-guardar:hover {
-  background: #0ef119;
 }
 </style>

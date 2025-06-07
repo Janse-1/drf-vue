@@ -586,3 +586,29 @@ class SedeResumenSerializer(serializers.ModelSerializer):
 
     def get_estudiantes(self, obj):
         return Estudiante.objects.filter(grupo__grado__sede=obj).count()
+
+class CoordinadorSedeAsignarSerializer(serializers.Serializer):
+    coordinador = serializers.UUIDField()
+    sede = serializers.CharField()
+
+    def validate(self, data):
+        from .models import Coordinador, Sede, CoordinadorSede
+        try:
+            coordinador = Coordinador.objects.get(id=data['coordinador'])
+        except Coordinador.DoesNotExist:
+            raise serializers.ValidationError({'coordinador': 'Coordinador no encontrado.'})
+        try:
+            sede = Sede.objects.get(codigo_dane=data['sede'])
+        except Sede.DoesNotExist:
+            raise serializers.ValidationError({'sede': 'Sede no encontrada.'})
+        if CoordinadorSede.objects.filter(coordinador=coordinador).exists():
+            raise serializers.ValidationError({'coordinador': 'Este coordinador ya tiene una sede asignada.'})
+        if CoordinadorSede.objects.filter(sede=sede).exists():
+            raise serializers.ValidationError({'sede': 'Esta sede ya tiene un coordinador asignado.'})
+        return data
+
+    def create(self, validated_data):
+        from .models import Coordinador, Sede, CoordinadorSede
+        coordinador = Coordinador.objects.get(id=validated_data['coordinador'])
+        sede = Sede.objects.get(codigo_dane=validated_data['sede'])
+        return CoordinadorSede.objects.create(coordinador=coordinador, sede=sede)

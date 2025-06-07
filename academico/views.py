@@ -5,7 +5,7 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from decimal import Decimal
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from .models import (Docente, Estudiante, Grado, Grupo, Rector, Asignatura, Evaluacion, AsignaturaDocenteGrupo, 
@@ -17,7 +17,7 @@ from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializ
                           UsuarioRegistroSerializer, SedeSerializer, EstudiantePerfilSerializer, DocentePerfilSerializer,
                           CoordinadorPerfilSerializer,  EvaluacionSerializer, CalificacionSerializer,
                           NotaFinalSerializer, AsignaturaDocenteGrupoExpandidoSerializer, RectorPerfilSerializer,
-                          PeriodoAcademicoSerializer, SedeResumenSerializer
+                          PeriodoAcademicoSerializer, SedeResumenSerializer, CoordinadorSedeAsignarSerializer
                           )
 
 
@@ -391,3 +391,37 @@ class SedeResumenAPIView(APIView):
         sedes = Sede.objects.all()
         serializer = SedeResumenSerializer(sedes, many=True)
         return Response(serializer.data)
+
+
+class CoordinadoresDisponiblesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        coordinadores = Coordinador.objects.exclude(coordinadorsede__isnull=False)
+        data = [
+            {
+                'id': str(c.id),
+                'nombres': c.nombres,
+                'apellidos': c.apellidos
+            } for c in coordinadores
+        ]
+        return Response(data)
+
+class SedesDisponiblesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        sedes = Sede.objects.exclude(coordinadorsede__isnull=False)
+        data = [
+            {
+                'codigo_dane': s.codigo_dane,
+                'nombre': s.nombre
+            } for s in sedes
+        ]
+        return Response(data)
+
+class AsignarCoordinadorSedeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        serializer = CoordinadorSedeAsignarSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'Coordinador asignado correctamente.'}, status=status.HTTP_201_CREATED)
