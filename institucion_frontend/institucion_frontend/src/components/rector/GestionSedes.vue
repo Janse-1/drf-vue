@@ -82,6 +82,8 @@ import axios from 'axios'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
+
+const emit = defineEmits(['ver-detalle'])
 const sedes = ref([])
 const showForm = ref(false)
 const showAsignar = ref(false)
@@ -196,6 +198,10 @@ async function asignarCoordinador() {
   } catch (err) {
     toast.error('Error al asignar coordinador.')
   }
+}
+
+function verDetalle(codigoDane) {
+  emit('ver-detalle', codigoDane)
 }
 
 onMounted(async () => {

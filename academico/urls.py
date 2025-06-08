@@ -5,7 +5,7 @@ from .views import (
     AsignaturaDocenteGrupoViewSet, EstudianteAsignaturaCursoGradoViewSet, RegistroUsuarioView,
     SedeListView, PerfilDetalladoAPIView, EvaluacionesDocenteAPIView, CalificacionCreateAPIView,
     NotaFinalViewSet, AsignaturasGruposDocenteAPIView, PeriodoAcademicoActualView, SedeResumenAPIView,
-    CoordinadoresDisponiblesAPIView, SedesDisponiblesAPIView, AsignarCoordinadorSedeAPIView
+    CoordinadoresDisponiblesAPIView, SedesDisponiblesAPIView, AsignarCoordinadorSedeAPIView, DetalleSedeAPIView
 )
 
 router = DefaultRouter()
@@ -31,5 +31,6 @@ urlpatterns = [
     path('coordinadores-disponibles/', CoordinadoresDisponiblesAPIView.as_view(), name='coordinadores-disponibles'),
     path('sedes-disponibles/', SedesDisponiblesAPIView.as_view(), name='sedes-disponibles'),
     path('asignar-coordinador-sede/', AsignarCoordinadorSedeAPIView.as_view(), name='asignar-coordinador-sede'),
+    path('detalle-sede/<str:codigo_dane>/', DetalleSedeAPIView.as_view(), name='detalle-sede'),
 ]
 

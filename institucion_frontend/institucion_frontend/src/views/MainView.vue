@@ -68,6 +68,7 @@
           <a href="#" @click.prevent="mostrarVista = 'verEstudiantes'":class="{ activo: mostrarVista === 'verEstudiantes' }"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
           <a href="#" @click.prevent="mostrarVista = 'registrar'":class="{ activo: mostrarVista === 'registrar' }"><i class="fa-solid fa-user-plus"></i> Registrar</a>
           <a href="#" @click.prevent="mostrarVista = 'gestionSedes'":class="{ activo: mostrarVista === 'gestionSedes'}"><i class="fa-solid fa-school"></i> Gestión de sedes</a>
+          <a href="#"><i class="fa-solid fa-calendar-days"></i> Periodos Académicos</a>
         </template>
 
         <hr>
@@ -80,7 +81,17 @@
         <SubirEvaluaciones v-if="mostrarVista === 'subirEvaluacion'" />
         <VerEstudiantes v-if="mostrarVista === 'verEstudiantes'" />
         <RegistroView v-if="mostrarVista === 'registrar'" />
-        <GestionSedes v-if="mostrarVista === 'gestionSedes'" />
+        <GestionSedes
+          v-if="mostrarVista === 'gestionSedes' && !detalleSedeActiva"
+          @ver-detalle="verDetalleSede"
+        />
+
+        <DetalleSede
+          v-if="mostrarVista === 'gestionSedes' && detalleSedeActiva"
+          :codigo-dane="sedeSeleccionada"
+          @volver="volverAGestionSedes"
+        />
+
 
       </main>
     </div>
@@ -100,8 +111,11 @@ import VerEstudiantes from '@/components/docentes/VerEstudiantes.vue';
 import RegistroView from './RegistroView.vue';
 import verNotas from '@/components/estudiantes/verNotas.vue';
 import GestionSedes from '@/components/rector/GestionSedes.vue';
+import DetalleSede from '@/components/rector/DetalleSede.vue';
 
 const mostrarVista = ref(null);
+const detalleSedeActiva = ref(false)
+const sedeSeleccionada = ref(null)
 
 const user = ref({
   username: '',
@@ -112,6 +126,16 @@ const user = ref({
 })
 const router = useRouter()
 
+
+function verDetalleSede(codigoDane) {
+  sedeSeleccionada.value = codigoDane
+  detalleSedeActiva.value = true
+}
+
+function volverAGestionSedes() {
+  detalleSedeActiva.value = false
+  sedeSeleccionada.value = null
+}
 
 const cerrarSesion = () => {
   localStorage.removeItem('access_token')

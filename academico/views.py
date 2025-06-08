@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from .models import (Docente, Estudiante, Grado, Grupo, Rector, Asignatura, Evaluacion, AsignaturaDocenteGrupo, 
                      EstudianteAsignaturaCursoGrado, Usuario, Sede, Coordinador, Calificacion, PeriodoAcademico,
-                     NotaFinal
+                     NotaFinal, CoordinadorSede
                      )
 from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer,
                           AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer,
@@ -425,3 +425,46 @@ class AsignarCoordinadorSedeAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'detail': 'Coordinador asignado correctamente.'}, status=status.HTTP_201_CREATED)
+
+class DetalleSedeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, codigo_dane):
+        try:
+            sede = Sede.objects.get(codigo_dane=codigo_dane)
+        except Sede.DoesNotExist:
+            return Response({'detail': 'Sede no encontrada.'}, status=404)
+        # Coordinador
+        rel = CoordinadorSede.objects.filter(sede=sede).select_related('coordinador').first()
+        coordinador = None
+        if rel and rel.coordinador:
+            coordinador = {
+                'id': str(rel.coordinador.id),
+                'nombre': f"{rel.coordinador.nombres} {rel.coordinador.apellidos}"
+            }
+        # Docentes
+        docentes = Docente.objects.filter(docentesede__sede=sede).distinct()
+        docentes_list = [
+            {'id': str(d.id), 'nombres': d.nombres, 'apellidos': d.apellidos}
+            for d in docentes
+        ]
+        # Grados
+        grados = Grado.objects.filter(sede=sede)
+        grados_list = [{'id': str(g.id), 'nombre': g.nombre} for g in grados]
+        # Grupos
+        grupos = Grupo.objects.filter(grado__sede=sede)
+        grupos_list = [{'id': str(gr.id), 'nombre': gr.nombre} for gr in grupos]
+        # Estudiantes
+        estudiantes = Estudiante.objects.filter(grupo__grado__sede=sede)
+        estudiantes_list = [
+            {'id': str(e.id), 'nombres': e.nombres, 'apellidos': e.apellidos}
+            for e in estudiantes
+        ]
+        return Response({
+            'codigo_dane': sede.codigo_dane,
+            'nombre': sede.nombre,
+            'coordinador': coordinador,
+            'docentes': docentes_list,
+            'grados': grados_list,
+            'grupos': grupos_list,
+            'estudiantes': estudiantes_list
+        })
