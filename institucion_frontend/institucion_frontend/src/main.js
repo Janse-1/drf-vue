@@ -13,7 +13,7 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.use(VueApexCharts)
-app.component('apexchart', VueApexCharts)
+
 
 // Opciones personalizadas para los toast
 const toastOptions = {

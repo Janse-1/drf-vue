@@ -17,7 +17,8 @@ from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializ
                           UsuarioRegistroSerializer, SedeSerializer, EstudiantePerfilSerializer, DocentePerfilSerializer,
                           CoordinadorPerfilSerializer,  EvaluacionSerializer, CalificacionSerializer,
                           NotaFinalSerializer, AsignaturaDocenteGrupoExpandidoSerializer, RectorPerfilSerializer,
-                          PeriodoAcademicoSerializer, SedeResumenSerializer, CoordinadorSedeAsignarSerializer
+                          PeriodoAcademicoSerializer, SedeResumenSerializer, CoordinadorSedeAsignarSerializer,
+                          CoordinadorSerializer
                           )
 
 
@@ -439,7 +440,15 @@ class DetalleSedeAPIView(APIView):
         if rel and rel.coordinador:
             coordinador = {
                 'id': str(rel.coordinador.id),
-                'nombre': f"{rel.coordinador.nombres} {rel.coordinador.apellidos}"
+                'nombres': f"{rel.coordinador.nombres}", 
+                'apellidos': f"{rel.coordinador.apellidos}",
+                'correo': f"{rel.coordinador.correo}",
+                'telefono': f"{rel.coordinador.telefono}",
+                'sexo': f"{rel.coordinador.sexo}",
+                'fecha_nacimiento': rel.coordinador.fecha_nacimiento.isoformat() if rel.coordinador.fecha_nacimiento else None,
+                'tipo_documento': rel.coordinador.tipo_documento,
+                'numero_documento': rel.coordinador.numero_documento,
+                'direccion': rel.coordinador.direccion
             }
         # Docentes
         docentes = Docente.objects.filter(docentesede__sede=sede).distinct()
@@ -467,4 +476,19 @@ class DetalleSedeAPIView(APIView):
             'grados': grados_list,
             'grupos': grupos_list,
             'estudiantes': estudiantes_list
+        })
+
+class CoordinadorViewSet(viewsets.ModelViewSet):
+    queryset = Coordinador.objects.all()
+    serializer_class = CoordinadorSerializer
+    http_method_names = ['get', 'put', 'patch', 'head', 'options']
+    
+    @action(detail=False, methods=['get'], url_path='disponibles-ocupados')
+    def disponibles_ocupados(self, request):
+        coordinadores_ocupados = Coordinador.objects.filter(sedes__isnull=False).distinct()
+        coordinadores_disponibles = Coordinador.objects.exclude(id__in=coordinadores_ocupados)
+        
+        return Response({
+            'disponibles': CoordinadorSerializer(coordinadores_disponibles, many=True).data,
+            'ocupados': CoordinadorSerializer(coordinadores_ocupados, many=True).data
         })

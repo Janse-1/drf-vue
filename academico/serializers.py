@@ -460,7 +460,31 @@ class CoordinadorPerfilSerializer(serializers.ModelSerializer):
             'fecha_nacimiento',
             'sexo'
         ]       
+
+class CoordinadorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coordinador
+        fields = [
+            'id',
+            'tipo_documento',
+            'numero_documento',
+            'nombres',
+            'apellidos',
+            'sexo',
+            'telefono',
+            'correo',
+            'direccion',
+            'fecha_nacimiento',
+            'estado',
+        ]
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
         
+
 class EvaluacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Evaluacion

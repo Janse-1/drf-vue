@@ -5,7 +5,8 @@ from .views import (
     AsignaturaDocenteGrupoViewSet, EstudianteAsignaturaCursoGradoViewSet, RegistroUsuarioView,
     SedeListView, PerfilDetalladoAPIView, EvaluacionesDocenteAPIView, CalificacionCreateAPIView,
     NotaFinalViewSet, AsignaturasGruposDocenteAPIView, PeriodoAcademicoActualView, SedeResumenAPIView,
-    CoordinadoresDisponiblesAPIView, SedesDisponiblesAPIView, AsignarCoordinadorSedeAPIView, DetalleSedeAPIView
+    CoordinadoresDisponiblesAPIView, SedesDisponiblesAPIView, AsignarCoordinadorSedeAPIView, DetalleSedeAPIView,
+    CoordinadorViewSet
 )
 
 router = DefaultRouter()
@@ -19,6 +20,7 @@ router.register(r'estudiante-asignatura-curso-grado', EstudianteAsignaturaCursoG
 router.register(r'registro', RegistroUsuarioView, basename='registro-usuario')
 router.register(r'sedes', SedeListView, basename='sedes')
 router.register(r'notas-finales', NotaFinalViewSet, basename='notas-finales')
+router.register(r'coordinadores', CoordinadorViewSet, basename='coordinadores')
 
 urlpatterns = [
     path('', include(router.urls)),

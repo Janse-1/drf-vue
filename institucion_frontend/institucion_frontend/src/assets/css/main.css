@@ -45,3 +45,17 @@ footer a {
   color: white;
   margin-left: 15px;
 }
+
+.obligatorio{
+  color: red
+}
+
+.info-obligatoria {
+  font-size: 0.9rem;
+  color: #555;
+  background-color: #fdf1c4;
+  padding: 10px;
+  border-left: 4px solid #FFBA08;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+}

@@ -6,11 +6,19 @@
     <div class="detalle-card" v-if="sede">
         <h1 class="detalle-title">{{ sede?.nombre || 'Detalle de Sede' }}</h1>
       <ul class="info-list">
-        <li class="info-item" @click="toggle('coordinador')">
-          <strong>Coordinador:</strong> {{ sede.coordinador?.nombre || 'Sin asignar' }}
-          <ul v-if="show.coordinador && sede.coordinador" class="sub-list">
-            <li>{{ sede.coordinador.nombre }}</li>
-          </ul>
+        <li class="info-item" @click.self="toggle('coordinador')">
+          <strong>Coordinador:</strong> 
+          {{ sede.coordinador ? (sede.coordinador.nombres + ' ' + sede.coordinador.apellidos) : 'Sin asignar' }}
+          <div v-if="show.coordinador && sede.coordinador">
+            <CoordinadorSedeDetalle
+              :coordinador="sede.coordinador"
+              :sede-codigo-dane="codigoDane"
+              @actualizar="recargarSede"
+              @editar="onEditarCoordinador"
+              @eliminar="onEliminarCoordinador"
+              @cambiar="onCambiarCoordinador"
+            />
+          </div>
         </li>
         <li class="info-item" @click="toggle('docentes')">
           <strong>Docentes:</strong> {{ sede.docentes.length }}
@@ -43,12 +51,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { toast } from 'vue3-toastify'
+import CoordinadorSedeDetalle from './CoordinadorSedeDetalle.vue'
 
-const route = useRoute()
-const router = useRouter()
+defineEmits(['volver'])
 const sede = ref(null)
 const show = ref({
   coordinador: false,
@@ -57,13 +64,33 @@ const show = ref({
   grupos: false,
   estudiantes: false
 })
+const mostrarCoordinadorDetalle = ref(false)
 
 function toggle(key) {
   show.value[key] = !show.value[key]
+  if (key === 'coordinador' && show.value[key] && sede.value?.coordinador) {
+    mostrarCoordinadorDetalle.value = true
+  } else if (key === 'coordinador') {
+    mostrarCoordinadorDetalle.value = false
+  }
+}
+
+function onEditarCoordinador(coord) {
+  toast.info('Funcionalidad editar coordinador (por implementar)')
+}
+function onEliminarCoordinador(coord) {
+  toast.info('Funcionalidad eliminar coordinador (por implementar)')
+}
+function onCambiarCoordinador(coord) {
+  toast.info('Funcionalidad cambiar coordinador (por implementar)')
 }
 
 const props = defineProps(['codigoDane'])
-onMounted(async () => {
+function recargarSede() {
+  cargarSede()
+}
+
+async function cargarSede() {
   const token = localStorage.getItem('access_token')
   try {
     const res = await axios.get(`http://localhost:8000/api/detalle-sede/${props.codigoDane}/`, {
@@ -73,7 +100,9 @@ onMounted(async () => {
   } catch (err) {
     toast.error('Error al cargar la información de la sede.')
   }
-})
+}
+
+onMounted(cargarSede)
 </script>
 
 <style scoped>
