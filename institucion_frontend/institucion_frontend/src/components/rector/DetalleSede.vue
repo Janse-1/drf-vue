@@ -53,7 +53,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { toast } from 'vue3-toastify'
-import CoordinadorSedeDetalle from './CoordinadorSedeDetalle.vue'
+import CoordinadorSedeDetalle from './Crud-DetallesSedes.vue/CoordinadorSedeDetalle.vue'
 
 defineEmits(['volver'])
 const sede = ref(null)
