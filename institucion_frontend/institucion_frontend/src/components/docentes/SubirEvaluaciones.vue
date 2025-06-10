@@ -165,7 +165,7 @@ const obtenerPeriodoActual = async () => {
     const headers = { Authorization: `Bearer ${token}` }
 
     const res = await axios.get('http://127.0.0.1:8000/api/periodo-actual/', { headers })
-    periodoActual.value = res.data
+    periodoActual.value = res.data.periodo_activo
   } catch (err) {
     console.error('Error al obtener periodo actual:', err)
   }

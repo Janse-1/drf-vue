@@ -68,7 +68,7 @@
           <a href="#" @click.prevent="mostrarVista = 'verEstudiantes'":class="{ activo: mostrarVista === 'verEstudiantes' }"><i class="fa-solid fa-users"></i> Ver estudiantes</a>
           <a href="#" @click.prevent="mostrarVista = 'registrar'":class="{ activo: mostrarVista === 'registrar' }"><i class="fa-solid fa-user-plus"></i> Registrar</a>
           <a href="#" @click.prevent="mostrarVista = 'gestionSedes'":class="{ activo: mostrarVista === 'gestionSedes'}"><i class="fa-solid fa-school"></i> Gestión de sedes</a>
-          <a href="#"><i class="fa-solid fa-calendar-days"></i> Periodos Académicos</a>
+          <a href="#" @click.prevent="mostrarVista = 'periodos'":class="{ activo: mostrarVista === 'periodos'}" ><i class="fa-solid fa-calendar-days"></i> Periodos Académicos</a>
         </template>
 
         <hr>
@@ -91,7 +91,7 @@
           :codigo-dane="sedeSeleccionada"
           @volver="volverAGestionSedes"
         />
-
+        <PeriodoAcademico v-if="mostrarVista === 'periodos'" />
 
       </main>
     </div>
@@ -112,6 +112,7 @@ import RegistroView from './RegistroView.vue';
 import verNotas from '@/components/estudiantes/verNotas.vue';
 import GestionSedes from '@/components/rector/GestionSedes.vue';
 import DetalleSede from '@/components/rector/DetalleSede.vue';
+import PeriodoAcademico from '@/components/rector/PeriodoAcademico.vue';
 
 const mostrarVista = ref(null);
 const detalleSedeActiva = ref(false)

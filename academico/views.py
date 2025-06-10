@@ -373,16 +373,23 @@ class PeriodoAcademicoActualView(APIView):
     def get(self, request):
         fecha_actual = now().date()
         try:
-            periodo = PeriodoAcademico.objects.get(
+            periodo_activo = PeriodoAcademico.objects.get(
                 fecha_inicio__lte=fecha_actual,
                 fecha_fin__gte=fecha_actual
             )
-            serializer = PeriodoAcademicoSerializer(periodo)
-            return Response(serializer.data)
+            periodo_activo_data = PeriodoAcademicoSerializer(periodo_activo).data
         except PeriodoAcademico.DoesNotExist:
-            return Response({"detail": "No hay un periodo académico activo."}, status=404)
+            periodo_activo_data = None
         except MultipleObjectsReturned:
             return Response({"detail": "Hay más de un periodo activo. Corrige los datos."}, status=500)
+
+        todos_los_periodos = PeriodoAcademico.objects.all().order_by('-fecha_inicio')
+        todos_los_periodos_data = PeriodoAcademicoSerializer(todos_los_periodos, many=True).data
+
+        return Response({
+            "periodo_activo": periodo_activo_data,
+            "todos_los_periodos": todos_los_periodos_data
+        })
         
         
 class SedeResumenAPIView(APIView):
