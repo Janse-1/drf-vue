@@ -421,11 +421,30 @@ class SedesDisponiblesAPIView(APIView):
 
 class AsignarCoordinadorSedeAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        serializer = CoordinadorSedeAsignarSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({'detail': 'Coordinador asignado correctamente.'}, status=status.HTTP_201_CREATED)
+        sede_id = request.data.get('sede')
+        coordinador_id = request.data.get('coordinador')
+
+        if not sede_id:
+            return Response({'detail': 'Debe enviar el ID de la sede.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Si el coordinador es null => eliminar la relación existente
+        if coordinador_id in [None, '', 'null']:  # Acepta null desde JS
+            eliminados = CoordinadorSede.objects.filter(sede_id=sede_id).delete()
+            if eliminados[0] > 0:
+                return Response({'detail': 'Coordinador eliminado correctamente.'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'detail': 'La sede no tenía un coordinador asignado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Crear o actualizar el coordinador de la sede
+        obj, created = CoordinadorSede.objects.update_or_create(
+            sede_id=sede_id,
+            defaults={'coordinador_id': coordinador_id}
+        )
+
+        mensaje = 'Coordinador asignado correctamente.' if created else 'Coordinador actualizado correctamente.'
+        return Response({'detail': mensaje}, status=status.HTTP_200_OK)
 
 class DetalleSedeAPIView(APIView):
     permission_classes = [IsAuthenticated]
