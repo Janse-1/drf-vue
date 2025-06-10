@@ -485,10 +485,11 @@ class CoordinadorViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'], url_path='disponibles-ocupados')
     def disponibles_ocupados(self, request):
-        coordinadores_ocupados = Coordinador.objects.filter(sedes__isnull=False).distinct()
-        coordinadores_disponibles = Coordinador.objects.exclude(id__in=coordinadores_ocupados)
-        
-        return Response({
+        coordinadores_ocupados = Coordinador.objects.filter(coordinadorsede__isnull=False).distinct()
+        coordinadores_disponibles = Coordinador.objects.exclude(id__in=coordinadores_ocupados.values_list('id', flat=True))
+
+        data = {
             'disponibles': CoordinadorSerializer(coordinadores_disponibles, many=True).data,
-            'ocupados': CoordinadorSerializer(coordinadores_ocupados, many=True).data
-        })
+            'ocupados': CoordinadorSerializer(coordinadores_ocupados, many=True).data,
+        }
+        return Response(data)
