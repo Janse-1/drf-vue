@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from .models import (Docente, Estudiante, Grado, Grupo, Rector, Asignatura, Evaluacion, AsignaturaDocenteGrupo, 
                      EstudianteAsignaturaCursoGrado, Usuario, Sede, Coordinador, Calificacion, PeriodoAcademico,
-                     NotaFinal, CoordinadorSede
+                     NotaFinal, CoordinadorSede, DocenteSede
                      )
 from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializer, GrupoSerializer,
                           AsignaturaSerializer, AsignaturaDocenteGrupoSerializer, EstudianteAsignaturaCursoGradoSerializer,
@@ -18,13 +18,61 @@ from .serializers import (DocenteSerializer, EstudianteSerializer, GradoSerializ
                           CoordinadorPerfilSerializer,  EvaluacionSerializer, CalificacionSerializer,
                           NotaFinalSerializer, AsignaturaDocenteGrupoExpandidoSerializer, RectorPerfilSerializer,
                           PeriodoAcademicoSerializer, SedeResumenSerializer, CoordinadorSedeAsignarSerializer,
-                          CoordinadorSerializer
+                          CoordinadorSerializer, AsignarDocentesASedeSerializer
                           )
 
 
 class DocenteViewSet(viewsets.ModelViewSet):
     queryset = Docente.objects.all()
     serializer_class = DocenteSerializer
+
+    @action(detail=False, methods=['post'], url_path='asignar-sede')
+    def asignar_sede(self, request):
+        serializer = AsignarDocentesASedeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        sede_codigo = serializer.validated_data['sede']
+        docentes_ids = serializer.validated_data['docentes']
+
+        try:
+            sede = Sede.objects.get(codigo_dane=sede_codigo)
+        except Sede.DoesNotExist:
+            return Response({'detail': 'Sede no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+        
+        for docente_id in docentes_ids:
+            DocenteSede.objects.get_or_create(docente_id=docente_id, sede=sede)
+
+        
+        docentes_asignados_ids = DocenteSede.objects.filter(sede=sede).values_list('docente_id', flat=True)
+        docentes_actualizados = Docente.objects.filter(id__in=docentes_asignados_ids)
+        data = DocenteSerializer(docentes_actualizados, many=True).data
+
+        return Response({'detail': 'Docentes asignados', 'docentes': data}, status=status.HTTP_200_OK)
+
+    def get_queryset(self):
+        sede_id = self.request.query_params.get('sede')
+        if sede_id:
+            docentes_ids = DocenteSede.objects.filter(sede__codigo_dane=sede_id).values_list('docente_id', flat=True)
+            return Docente.objects.filter(id__in=docentes_ids)
+        return super().get_queryset()
+
+    @action(detail=False, methods=['get'], url_path='disponibles')
+    def disponibles(self, request):
+        codigo_dane = request.query_params.get('sede')
+        if not codigo_dane:
+            return Response({"error": "Debe proporcionar un parámetro 'sede'"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            sede = Sede.objects.get(codigo_dane=codigo_dane)
+        except Sede.DoesNotExist:
+            return Response({"error": "Sede no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+        docentes_asignados_ids = DocenteSede.objects.filter(sede=sede).values_list('docente_id', flat=True)
+        docentes_disponibles = Docente.objects.exclude(id__in=docentes_asignados_ids)
+
+        serializer = DocenteSerializer(docentes_disponibles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class EstudianteViewSet(viewsets.ModelViewSet):
     queryset = Estudiante.objects.all()

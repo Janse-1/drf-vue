@@ -20,28 +20,35 @@
             />
           </div>
         </li>
-        <li class="info-item" @click="toggle('docentes')">
-          <strong>Docentes:</strong> {{ sede.docentes.length }}
-          <ul v-if="show.docentes" class="sub-list">
-            <li v-for="doc in sede.docentes" :key="doc.id">{{ doc.nombres }} {{ doc.apellidos }}</li>
-          </ul>
+        <li class="info-item" @click.self="toggle('docentes')">
+          <strong>Docentes:</strong> {{ Array.isArray(sede.docentes) ? sede.docentes.length : 0 }}
+          <div v-if="show.docentes">
+            <DocenteSedeDetalle
+              :docentes="Array.isArray(sede.docentes) ? sede.docentes : []"
+              :sede-codigo-dane="codigoDane"
+              @actualizar="recargarSede"
+              @editar="onEditarDocente"
+              @eliminar="onEliminarDocente"
+              @cambiar="onCambiarDocente"
+            />
+          </div>
         </li>
         <li class="info-item" @click="toggle('grados')">
-          <strong>Grados:</strong> {{ sede.grados.length }}
+          <strong>Grados:</strong> {{ Array.isArray(sede.grados) ? sede.grados.length : 0 }}
           <ul v-if="show.grados" class="sub-list">
-            <li v-for="grado in sede.grados" :key="grado.id">{{ grado.nombre }}</li>
+            <li v-for="grado in sede.grados || []" :key="grado.id">{{ grado.nombre }}</li>
           </ul>
         </li>
         <li class="info-item" @click="toggle('grupos')">
-          <strong>Grupos:</strong> {{ sede.grupos.length }}
+          <strong>Grupos:</strong> {{ Array.isArray(sede.grupos) ? sede.grupos.length : 0 }}
           <ul v-if="show.grupos" class="sub-list">
-            <li v-for="grupo in sede.grupos" :key="grupo.id">{{ grupo.nombre }}</li>
+            <li v-for="grupo in sede.grupos || []" :key="grupo.id">{{ grupo.nombre }}</li>
           </ul>
         </li>
         <li class="info-item" @click="toggle('estudiantes')">
-          <strong>Estudiantes:</strong> {{ sede.estudiantes.length }}
+          <strong>Estudiantes:</strong> {{ Array.isArray(sede.estudiantes) ? sede.estudiantes.length : 0 }}
           <ul v-if="show.estudiantes" class="sub-list">
-            <li v-for="est in sede.estudiantes" :key="est.id">{{ est.nombres }} {{ est.apellidos }}</li>
+            <li v-for="est in sede.estudiantes || []" :key="est.id">{{ est.nombres }} {{ est.apellidos }}</li>
           </ul>
         </li>
       </ul>
@@ -53,7 +60,9 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { toast } from 'vue3-toastify'
-import CoordinadorSedeDetalle from './Crud-DetallesSedes.vue/CoordinadorSedeDetalle.vue'
+import CoordinadorSedeDetalle from './Crud-DetallesSedes/CoordinadorSedeDetalle.vue'
+import DocenteSedeDetalle from './Crud-DetallesSedes/DocenteSedeDetalle.vue'
+
 
 defineEmits(['volver'])
 const sede = ref(null)
@@ -107,15 +116,16 @@ onMounted(cargarSede)
 
 <style scoped>
 .detalle-sede-wrapper {
-  max-width: 700px;
+  max-width: 1100px;
   margin: 2rem auto;
+  margin-top: 0;
   padding: 1rem;
 }
 .detalle-header {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 10px;
 }
 .detalle-title {
   font-size: 1.6rem;

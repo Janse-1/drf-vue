@@ -519,9 +519,13 @@ class NotaFinalSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
 class GrupoSerializerMini(serializers.ModelSerializer):
+    sede_id = serializers.IntegerField(source='grado.sede.id', read_only=True)
+    sede_nombre = serializers.CharField(source='grado.sede.nombre', read_only=True)
+
     class Meta:
         model = Grupo
-        fields = ['id', 'nombre']
+        fields = ['id', 'nombre', 'sede_id', 'sede_nombre']
+
 
 class AsignaturaSerializerMini(serializers.ModelSerializer):
     class Meta:
@@ -636,3 +640,8 @@ class CoordinadorSedeAsignarSerializer(serializers.Serializer):
         coordinador = Coordinador.objects.get(id=validated_data['coordinador'])
         sede = Sede.objects.get(codigo_dane=validated_data['sede'])
         return CoordinadorSede.objects.create(coordinador=coordinador, sede=sede)
+    
+    
+class AsignarDocentesASedeSerializer(serializers.Serializer):
+    sede = serializers.CharField()
+    docentes = serializers.ListField(child=serializers.IntegerField())
